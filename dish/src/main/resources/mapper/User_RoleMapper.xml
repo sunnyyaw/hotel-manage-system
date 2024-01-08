@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.dish.mapper.User_RoleMapper">
+
+    <select id="getAllUser_Roles" resultType="com.example.dish.entity.User_Role">
+        select * from users_roles;
+    </select>
+
+    <insert id="addUser_Role" parameterType="com.example.dish.entity.User_Role">
+        insert into users_roles (userId,roleId) values (#{userId},#{roleId})
+    </insert>
+
+    <delete id="deleteUser_Role" parameterType="com.example.dish.entity.User_Role">
+        delete from users_roles where userId = #{userId} and roleId = #{roleId}
+    </delete>
+
+</mapper>

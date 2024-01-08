@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.dish.mapper.PermissionMapper">
+
+    <select id="getAllPermissions" resultType="com.example.dish.entity.Permission">
+        select * from permissions;
+    </select>
+
+    <select id="getPermissionById" parameterType="java.lang.Long" resultType="com.example.dish.entity.Permission">
+        select * from permissions where id = #{id};
+    </select>
+
+    <insert id="addPermission" parameterType="com.example.dish.entity.Permission" useGeneratedKeys="true" keyProperty="id">
+        insert into permissions (url,description) values (#{url},#{description})
+    </insert>
+
+    <delete id="deletePermissionById" parameterType="java.lang.Long">
+        delete from permissions where id = #{id}
+    </delete>
+
+    <update id="updatePermission" parameterType="com.example.dish.entity.Permission">
+        update permissions set url = #{url}, description = #{description} where id = #{id}
+    </update>
+
+</mapper>

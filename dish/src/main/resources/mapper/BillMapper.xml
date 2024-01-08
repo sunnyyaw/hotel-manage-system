@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.dish.mapper.BillMapper">
+
+    <select id="getAllBills" resultType="com.example.dish.entity.Bill">
+        select * from bills
+    </select>
+
+    <select id="getBillById" parameterType="java.lang.Long" resultType="com.example.dish.entity.Bill">
+        select * from bills where id = #{id}
+    </select>
+
+    <select id="getBillsByCustomerId" parameterType="java.lang.Long">
+        select * from bills where customerId = #{customerId}
+    </select>
+
+    <insert id="addBill" parameterType="com.example.dish.entity.Bill" useGeneratedKeys="true" keyProperty="id">
+        insert into bills ( customerId, genTime ) values ( #{customerId}, #{genTime})
+    </insert>
+
+    <delete id="deleteBillById" parameterType="java.lang.Long">
+        delete from bills where id = #{id}
+    </delete>
+
+</mapper>

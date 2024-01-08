@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.dish.mapper.DishMapper">
+
+    <select id="getDishById" parameterType="java.lang.Long" resultType="com.example.dish.entity.Dish">
+        select * from dishes where id = #{id}
+    </select>
+
+    <select id="getDishesByCategoryId" parameterType="java.lang.Long" resultType="com.example.dish.entity.Dish">
+        select * from dishes where categoryId = #{categoryId}
+    </select>
+
+    <select id="getAllDishes" resultType="com.example.dish.entity.Dish">
+        select * from dishes
+    </select>
+
+    <select id="getDishesByKeyword" parameterType="java.lang.String" resultType="com.example.dish.entity.Dish">
+        select * from dishes where dishName like concat('%',#{keyword},'%') or description like concat('%',#{keyword},'%')
+    </select>
+
+    <insert id="addDish" parameterType="com.example.dish.entity.Dish" useGeneratedKeys="true" keyProperty="id">
+        insert into dishes ( dishName, description, unitPrice,categoryId,cover ) values ( #{dishName}, #{description}, #{unitPrice},#{categoryId},#{cover} )
+    </insert>
+
+    <delete id="deleteDishById" parameterType="java.lang.Long">
+        delete from dishes where id = #{id}
+    </delete>
+
+    <update id="updateDish" parameterType="com.example.dish.entity.Dish">
+        update dishes set dishName = #{dishName},description = #{description},unitPrice = #{unitPrice},categoryId = #{categoryId},cover = #{cover} where id = #{id}
+    </update>
+
+</mapper>

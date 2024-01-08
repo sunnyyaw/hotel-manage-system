@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.dish.mapper.Role_PermissionMapper">
+
+    <select id="getAllRole_Permissions" resultType="com.example.dish.entity.Role_Permission">
+        select * from roles_permissions;
+    </select>
+
+    <insert id="addRole_Permission" parameterType="com.example.dish.entity.Role_Permission">
+        insert into roles_permissions (roleId,permissionId) values (#{roleId},#{permissionId})
+    </insert>
+
+    <delete id="deleteRole_Permission" parameterType="com.example.dish.entity.Role_Permission">
+        delete from roles_permissions where roleId = #{roleId} and permissionId = #{permissionId}
+    </delete>
+
+</mapper>
