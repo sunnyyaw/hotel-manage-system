@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @SpringBootApplication
 public class DishApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(DishApplication.class, args);
 	}

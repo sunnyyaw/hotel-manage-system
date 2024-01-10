@@ -1,6 +1,5 @@
 package com.example.dish.controller;
 
-import com.example.dish.Exception.PasswordCollideException;
 import com.example.dish.Exception.UserNotFoundException;
 import com.example.dish.entity.User;
 import com.example.dish.entity.UserDTO;
@@ -21,7 +20,7 @@ public class UserController {
     private UserService userService;
     @RequestMapping(value="/users",method = RequestMethod.GET)
     public Result<List<UserDTO>> getAllUsers(){
-        List<UserDTO> users = userService.getAllUsers();
+        List<UserDTO> users = userService.getAllUserInfo();
         return new Result<>(200,"查询成功",users);
     }
 

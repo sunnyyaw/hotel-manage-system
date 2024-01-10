@@ -17,8 +17,9 @@
             <div class="name">
                 <a href="">{{ item.dishName }}</a>
             </div>
+            <i class="el-icon-edit" @click="editDish(item)"></i>
             <i class="el-icon-delete" @click="deleteDish(item.id)"></i>
-            <div class="price">{{ item.unitPrice }}</div>
+            <div class="price">{{ item.unitPrice }}元</div>
         </div>
         </el-card>
         </el-tooltip>

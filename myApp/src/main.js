@@ -19,7 +19,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requireAuth) {
     if (store.state.user) {
       axios.get('/authentication').then(resp => {
-        if (resp)next()
+        if (resp) next()
       }).catch(failresponse => {
         next({
           path: 'login',

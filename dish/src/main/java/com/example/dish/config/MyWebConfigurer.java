@@ -28,7 +28,7 @@ public class MyWebConfigurer implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry){
         registry.addMapping("/**")
                 .allowCredentials(true)
-                .allowedOrigins("http://localhost:8080")
+                .allowedOrigins("http://localhost:8080","http://localhost:8081")
                 .allowedMethods("POST","GET","PUT","OPTIONS","DELETE")
                 .allowedHeaders("*");
     }
@@ -36,6 +36,6 @@ public class MyWebConfigurer implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry){
         registry.addInterceptor(getLoginInterceptor())
                 .addPathPatterns("/**")
-                .excludePathPatterns("/login","/register");
+                .excludePathPatterns("/login","/register","/verifyCode");
     }
 }

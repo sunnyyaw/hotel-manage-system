@@ -1,12 +1,11 @@
 package com.example.dish.services;
 
+import com.example.dish.Exception.PasswordCollideException;
 import com.example.dish.Exception.UserExistException;
 import com.example.dish.Exception.UserNotFoundException;
 import com.example.dish.entity.*;
 import com.example.dish.mapper.*;
-import com.example.dish.utils.PermissionUtils;
-import com.example.dish.utils.RoleUtils;
-import com.example.dish.utils.UserUtils;
+import com.example.dish.utils.PasswordUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -21,21 +20,21 @@ import java.util.Objects;
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
-    private UserUtils userMapper;
+    private UserMapper userMapper;
     @Autowired
-    private RoleUtils roleMapper;
+    private RoleService roleService;
     @Autowired
-    private PermissionUtils permissionMapper;
+    private PermissionService permissionService;
     @Autowired
     private User_RoleMapper user_roleMapper;
     @Autowired
     private Role_PermissionMapper role_permissionMapper;
 
     @Override
-    public List<UserDTO> getAllUsers() {
-        List<User> users = userMapper.getAllUsers();
+    public List<UserDTO> getAllUserInfo() {
+        List<User> users = this.getAllUsers();
         return users.stream().map(user->{
-            List<Role> roles = userMapper.getRolesByUser(user);
+            List<Role> roles = this.getRolesByUser(user);
             UserDTO userDTO = new UserDTO();
             userDTO.setId(user.getId());
             userDTO.setUsername(user.getUsername());
@@ -50,11 +49,11 @@ public class UserServiceImpl implements UserService {
     public UserDTO getUserInfo() throws UserNotFoundException {
         Subject subject = SecurityUtils.getSubject();
         String username = subject.getPrincipal().toString();
-        User user = userMapper.getUserByUsername(username);
+        User user = this.getUserByUsername(username);
         if(Objects.isNull(user)){
             throw new UserNotFoundException();
         }
-        List<Role> roles = userMapper.getRolesByUser(user);
+        List<Role> roles = this.getRolesByUser(user);
         UserDTO userDTO = new UserDTO();
         userDTO.setId(user.getId());
         userDTO.setUsername(user.getUsername());
@@ -65,18 +64,18 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void saveUser(UserDTO userDTO)throws Exception {
-        if(userMapper.existsByUsername(userDTO.getId(),userDTO.getUsername()))
+        if(this.existsByUsername(userDTO.getId(),userDTO.getUsername()))
             throw new Exception("用户名已存在");
-        if(!userMapper.existsById(userDTO.getId())){
-            userMapper.encodePassword(userDTO);
-            userMapper.addUser(userDTO);
+        if(!this.existsById(userDTO.getId())){
+            this.encodePassword(userDTO);
+            this.addUser(userDTO);
         }
         else{
             if(userDTO.getNeedEncode())
-                userMapper.encodePassword(userDTO);
-            userMapper.updateUser(userDTO);
+                this.encodePassword(userDTO);
+            this.updateUser(userDTO);
         }
-        userMapper.updateUser_RolesByUser(userDTO);
+        this.updateUser_RolesByUser(userDTO);
     }
 
     @Override
@@ -102,96 +101,144 @@ public class UserServiceImpl implements UserService {
     public void register(User user) throws Exception {
         String username = user.getUsername();
         username = HtmlUtils.htmlEscape(username);
-        if(userMapper.existsByUsername(user.getId(),user.getUsername())){
+        if(this.existsByUsername(user.getId(),user.getUsername())){
             throw new UserExistException();
         }
         user.setUsername(username);
-        userMapper.encodePassword(user);
-        userMapper.addUser(user);
+        this.encodePassword(user);
+        this.addUser(user);
     }
 
     @Override
     public void modifyPassword(String password) throws Exception {
         String username = SecurityUtils.getSubject().getPrincipal().toString();
-        User user= userMapper.getUserByUsername(username);
+        User user= this.getUserByUsername(username);
         user.setPassword(password);
-        userMapper.encodePassword(user);
-        userMapper.updateUser(user);
-    }
-
-    @Override
-    public List<RoleDTO> getAllRoles() {
-        return roleMapper.getAllRoles().stream()
-                .map(role->{
-                    List<Permission> permissions = roleMapper.getPermissionsByRole(role);
-                    RoleDTO roleDTO = new RoleDTO();
-                    roleDTO.setId(role.getId());
-                    roleDTO.setRoleName(role.getRoleName());
-                    roleDTO.setPermissions(permissions);
-                    return roleDTO;
-                }).toList();
-    }
-
-    @Override
-    @Transactional
-    public void saveRole(RoleDTO roleDTO)throws Exception {
-        roleDTO.setRoleName(roleDTO.getRoleName().trim());
-        if(roleMapper.existsByRoleName(roleDTO.getId(),roleDTO.getRoleName()))
-            throw new Exception("角色名已存在");
-        if (!roleMapper.existsById(roleDTO.getId()))
-            roleMapper.addRole(roleDTO);
-        else
-            roleMapper.updateRole(roleDTO);
-        roleMapper.updateRole_PermissionsByRole(roleDTO);
-    }
-
-    @Override
-    @Transactional
-    public void deleteRole(Long id) throws Exception {
-        if(!roleMapper.existsById(id))
-            throw new Exception("角色不存在");
-        roleMapper.deleteUser_RolesByRole(id);
-        roleMapper.deleteRole_PermissionsByRole(id);
-        roleMapper.deleteRoleById(id);
-    }
-
-    @Override
-    public List<Permission> getAllPermissions() {
-        return permissionMapper.getAllPermissions();
-    }
-
-    @Override
-    public void savePermission(Permission permission) throws Exception {
-        if(permissionMapper.existsByURL(permission.getId(),permission.getUrl()))
-            throw new Exception("url已存在");
-        if(!permissionMapper.existsById(permission.getId())){
-            permissionMapper.addPermission(permission);
-        }
-        else{
-            permissionMapper.updatePermission(permission);
-        }
-    }
-
-
-    @Override
-    @Transactional
-    public void deletePermission(Long id) throws Exception {
-        if(!permissionMapper.existsById(id))
-            throw new Exception("权限不存在");
-        permissionMapper.deleteRole_PermissionsByPermission(id);
-        permissionMapper.deletePermissionById(id);
+        this.encodePassword(user);
+        this.updateUser(user);
     }
 
     @Override
     @Transactional
     public void deleteUser(Long id)throws Exception {
-        User user = userMapper.getUserById(id);
+        User user = this.getUserById(id);
         String username = SecurityUtils.getSubject().getPrincipal().toString();
         if(Objects.isNull(user))
             throw new UserNotFoundException();
         if(Objects.equals(username,user.getUsername()))
             throw new Exception("不能删除自己");
-        userMapper.deleteUser_RolesByUser(id);
+        this.deleteUser_RolesByUser(id);
+        this.deleteUser(user);
+    }
+
+    @Override
+    public List<Role> getRolesByUser(User user) {
+        return this.getUser_RolesByUser(user).stream()
+                .map(user_role ->
+                        roleService.getRoleById(user_role.getRoleId())).toList();
+    }
+
+    @Override
+    public List<Permission> getPermissionsByUser(User user) {
+        return this.getRolesByUser(user).stream().flatMap(role->
+                roleService.getPermissionsByRole(role).stream()
+        ).toList();
+    }
+
+    @Override
+    public List<User_Role> getUser_RolesByUser(User user) {
+        return user_roleMapper.getAllUser_Roles()
+                .stream().filter(user_role ->
+                        Objects.equals(user_role.getUserId(),user.getId())
+                ).toList();
+    }
+
+    @Override
+    public List<User_Role> getUser_RolesById(Long id) {
+        return user_roleMapper.getAllUser_Roles()
+                .stream().filter(user_role ->
+                        Objects.equals(user_role.getUserId(),id)
+                ).toList();
+    }
+
+    @Override
+    public boolean existsByUsername(Long id, String username) {
+        return this.getAllUsers().stream()
+                .anyMatch(u->!Objects.equals(u.getId(),id)&&
+                        Objects.equals(u.getUsername(),username));
+    }
+    @Override
+    public boolean existsById(Long id) {
+        return !Objects.isNull(this.getUserById(id));
+    }
+
+    @Override
+    public void deleteUser_RolesByUser(Long id) {
+        this.getUser_RolesById(id)
+                .forEach(user_role->user_roleMapper.deleteUser_Role(user_role));
+    }
+
+    @Override
+    public void updateUser_RolesByUser(UserDTO userDTO) {
+        Long userId = userDTO.getId();
+        List<Role> newRoles = userDTO.getRoles();
+        List<User_Role> user_roles = this.getUser_RolesByUser(userDTO);
+        user_roles.forEach(user_role -> {
+            if(newRoles.stream()
+                    .noneMatch(newRole-> Objects.equals(newRole.getId(),user_role.getRoleId())))
+                user_roleMapper.deleteUser_Role(user_role);
+        });
+        newRoles.forEach(newRole->{
+            if(user_roles.stream()
+                    .noneMatch(user_role -> Objects.equals(newRole.getId(),user_role.getRoleId()))){
+                User_Role user_role = new User_Role();
+                user_role.setUserId(userId);
+                user_role.setRoleId(newRole.getId());
+                user_roleMapper.addUser_Role(user_role);
+            }
+        });
+    }
+
+    @Override
+    public void encodePassword(User userDTO) throws Exception{
+        User user= this.getUserByUsername(userDTO.getUsername());
+        if(!Objects.isNull(user)&&
+                PasswordUtils.encodePassword(userDTO.getPassword(),user.getSalt()).equals(user.getPassword())){
+            throw new PasswordCollideException();
+        }
+        String salt = PasswordUtils.generateSalt();
+        String encodedPassword = PasswordUtils.encodePassword(userDTO.getPassword(),salt);
+        userDTO.setSalt(salt);
+        userDTO.setPassword(encodedPassword);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return userMapper.getAllUsers();
+    }
+
+    @Override
+    public User getUserById(Long id) {
+        return userMapper.getUserById(id);
+    }
+
+    @Override
+    public User getUserByUsername(String username) {
+        return userMapper.getUserByUsername(username);
+    }
+
+    @Override
+    public void addUser(User user) {
+        userMapper.addUser(user);
+    }
+
+    @Override
+    public void deleteUser(User user) {
         userMapper.deleteUser(user);
+    }
+
+    @Override
+    public void updateUser(User user) {
+        userMapper.updateUser(user);
     }
 }

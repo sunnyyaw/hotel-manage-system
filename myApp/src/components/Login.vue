@@ -9,6 +9,12 @@
             <el-input type="text" v-model="loginForm.password"
             auto-complete="off" placeholder="密码" show-password></el-input>
         </el-form-item>
+        <el-form-item>
+            <el-input type="text" v-model="loginForm.verifyCode"
+            auto-complete="off" placeholder="验证码"></el-input>
+            <img style="width:200px;height:100px;"
+            :src="imgSrc" fit="fill" @click="refreshVerifyCode">
+        </el-form-item>
         <el-form-item style="width:100%">
             <el-button type="primary" v-on:click="login" v-loading="loginLoading">登录</el-button>
             <el-button type="primary" v-on:click="register" v-loading="registerLoading">注册</el-button>
@@ -24,12 +30,17 @@ export default {
       loginForm: {
         username: '',
         password: '',
+        verifyCode: '',
         rememberMe: false
       },
+      imgSrc: '',
       loginLoading: false,
       registerLoading: false,
       responseResult: []
     }
+  },
+  mounted: function () {
+    this.refreshVerifyCode()
   },
   methods: {
     login () {
@@ -38,8 +49,7 @@ export default {
         .then(successResponse => {
           if (successResponse.data.code === 200) {
             this.$store.commit('login', this.loginForm)
-            var path = this.$route.query.redirect
-            this.$router.replace({path: path === '/' || path === undefined ? '/index' : path})
+            this.$router.replace({path: '/index'})
           } else {
             this.$alert(successResponse.data.message, '提示', {
               confirmButtonText: '确定'})
@@ -74,6 +84,9 @@ export default {
             confirmButtonText: '确定'})
           this.registerLoading = false
         })
+    },
+    refreshVerifyCode () {
+      this.imgSrc = 'http://localhost:8443/verifyCode?t=' + new Date().getTime()
     }
   }
 }

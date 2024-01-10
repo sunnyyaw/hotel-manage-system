@@ -31,6 +31,14 @@ export default new Router({
           }
         },
         {
+          path: '/',
+          name: 'AppIndex',
+          component: AppIndex,
+          meta: {
+            requireAuth: true
+          }
+        },
+        {
           path: '/dish',
           name: 'DishIndex',
           component: DishIndex,

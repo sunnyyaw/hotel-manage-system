@@ -18,6 +18,7 @@ public class UserDTO extends User{
     @NotBlank(message="密码不得为空")
     private String password;
     private String salt;
+    private String verifyCode;
     private List<Permission> permissions;
     private List<Role> roles;
     private Boolean rememberMe = Boolean.FALSE;

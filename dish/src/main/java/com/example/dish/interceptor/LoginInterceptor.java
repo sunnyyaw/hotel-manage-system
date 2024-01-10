@@ -2,8 +2,8 @@ package com.example.dish.interceptor;
 
 import com.example.dish.entity.Permission;
 import com.example.dish.entity.User;
-import com.example.dish.utils.PermissionUtils;
-import com.example.dish.utils.UserUtils;
+import com.example.dish.services.PermissionService;
+import com.example.dish.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.shiro.SecurityUtils;
@@ -19,9 +19,9 @@ import java.util.regex.Pattern;
 
 public class LoginInterceptor implements HandlerInterceptor {
     @Autowired
-    private UserUtils userUtils;
+    private UserService userService;
     @Autowired
-    private PermissionUtils permissionUtils;
+    private PermissionService permissionService;
     @Override
     public boolean preHandle (HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,Object o) throws Exception{
         if(HttpMethod.OPTIONS.toString().equals(httpServletRequest.getMethod())){
@@ -34,12 +34,12 @@ public class LoginInterceptor implements HandlerInterceptor {
             return false;
         }
         String url = httpServletRequest.getRequestURI();
-        if(!permissionUtils.anyMatchesURL(url))
+        if(!permissionService.anyMatchesURL(url))
             return true;
-        User user = userUtils.getUserByUsername(subject.getPrincipal().toString());
+        User user = userService.getUserByUsername(subject.getPrincipal().toString());
         if(Objects.isNull(user))
             throw new Exception("找不到用户");
-        List<Permission> permissions = userUtils.getPermissionsByUser(user);
+        List<Permission> permissions = userService.getPermissionsByUser(user);
         if(permissions.stream().anyMatch(permission -> Pattern.matches(permission.getUrl(),url)))
             return true;
         httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());

@@ -1,12 +1,10 @@
 package com.example.dish.controller;
 
-import com.example.dish.entity.Role;
 import com.example.dish.entity.RoleDTO;
 import com.example.dish.result.Result;
-import com.example.dish.services.UserService;
+import com.example.dish.services.RoleService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -17,17 +15,17 @@ import java.util.List;
 @Validated
 public class RoleController {
     @Autowired
-    private UserService userService;
+    private RoleService roleService;
 
     @RequestMapping(value="/roles",method = RequestMethod.GET)
     public Result<List<RoleDTO>> getAllRoles(){
-        List<RoleDTO> roles = userService.getAllRoles();
+        List<RoleDTO> roles = roleService.getAllRoleInfo();
         return new Result<>(200,"查询成功",roles);
     }
     @RequestMapping(value="/roles",method = RequestMethod.POST)
     public Result<String> addRole(@Valid @RequestBody RoleDTO roleDTO){
         try{
-            userService.saveRole(roleDTO);
+            roleService.saveRole(roleDTO);
         } catch (Exception e) {
             return new Result<>(400,e.getMessage());
         }
@@ -37,7 +35,7 @@ public class RoleController {
     public Result<String> deleteRole(@PathVariable(name="id")
                                          @Min(message = "编号不能小于1", value = 1L)Long id){
         try{
-            userService.deleteRole(id);
+            roleService.deleteRole(id);
         } catch (Exception e) {
             return new Result<>(400,e.getMessage());
         }

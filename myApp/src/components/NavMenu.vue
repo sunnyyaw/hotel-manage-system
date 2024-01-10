@@ -3,7 +3,7 @@
   class="el-menu-demo"
   router mode="horizontal">
   <el-menu-item v-for="(item,i) in navList" :key="i" :index="item.name">{{ item.navItem }}</el-menu-item>
-  <i class="el-icon-switch-button" v-on:click="logout"></i>
+  <el-button @click="logout" size="small" type="warning" icon="el-icon-switch-button"> 注销 </el-button>
   </el-menu>
 </template>
 <script>

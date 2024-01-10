@@ -1,11 +1,14 @@
-package com.example.dish.utils;
+package com.example.dish.services;
 
 import com.example.dish.entity.*;
 import com.example.dish.mapper.RoleMapper;
 
 import java.util.List;
 
-public interface RoleUtils extends RoleMapper {
+public interface RoleService extends RoleMapper {
+    List<RoleDTO> getAllRoleInfo();
+    void saveRole(RoleDTO roleDTO)throws Exception;
+    void deleteRole(Long id)throws Exception;
     boolean existsByRoleName(Long id, String roleName);
     boolean existsById(Long id);
     List<Permission> getPermissionsByRole(Role role);
@@ -16,4 +19,3 @@ public interface RoleUtils extends RoleMapper {
     void deleteUser_RolesByRole(Long id);
     void deleteRole_PermissionsByRole(Long id);
 }
-
