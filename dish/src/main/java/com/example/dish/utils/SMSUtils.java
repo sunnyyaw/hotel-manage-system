@@ -10,8 +10,8 @@ import com.aliyuncs.profile.DefaultProfile;
 public class SMSUtils {
     static final String product = "Dysmaapi";
     static final String domain = "dysmsapi.aliyuncs.com";
-    static final String accessKeyId = "LTAI5tEM7YB64pypSVqFjhXQ";
-    static final String accessKeySecret = "cI2gi7KtsFOHfUCbRYl2s4DfwIhgfQ";
+    static final String accessKeyId = "";
+    static final String accessKeySecret = "";
     public static SendSmsResponse sendSms(String phone, String code) throws ClientException{
         DefaultProfile profile = DefaultProfile.getProfile("cn-hangzhou",accessKeyId,accessKeySecret);
         IAcsClient acsClient = new DefaultAcsClient(profile);

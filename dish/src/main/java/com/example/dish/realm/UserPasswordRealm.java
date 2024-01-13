@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Objects;
 
-public class WJRealm extends AuthorizingRealm {
+public class UserPasswordRealm extends AuthorizingRealm {
     @Autowired
     private UserMapper userMapper;
     @Override

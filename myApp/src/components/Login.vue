@@ -1,6 +1,6 @@
 <template>
     <el-form class="login-container" label-position="left">
-        <h3 class="login_title">系统登录</h3>
+        <h3 class="login_title">用户名密码登录</h3>
         <el-form-item>
             <el-input type="text" v-model="loginForm.username"
             auto-complete="off" placeholder="账号"></el-input>
@@ -19,6 +19,7 @@
             <el-button type="primary" v-on:click="login" v-loading="loginLoading">登录</el-button>
             <el-button type="primary" v-on:click="register" v-loading="registerLoading">注册</el-button>
             <el-checkbox v-model="loginForm.rememberMe">记住我</el-checkbox>
+            <el-link type="primary" href="http://localhost:8080/phoneLogin">验证码登录</el-link>
         </el-form-item>
     </el-form>
 </template>
@@ -30,13 +31,13 @@ export default {
       loginForm: {
         username: '',
         password: '',
+        phone: '',
         verifyCode: '',
         rememberMe: false
       },
       imgSrc: '',
       loginLoading: false,
-      registerLoading: false,
-      responseResult: []
+      registerLoading: false
     }
   },
   mounted: function () {

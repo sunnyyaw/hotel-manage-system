@@ -14,11 +14,9 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.apache.shiro.authc.AuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -50,8 +48,7 @@ public class LoginController {
     @RequestMapping(value="/login",method = RequestMethod.POST)
     public Result<String> login(@Valid @RequestBody UserDTO userForm,
                                 HttpSession session){
-        if(userForm.getVerifyCode()==null||
-                !Objects.equals(session.getAttribute("verifyCode"),
+        if(!Objects.equals(session.getAttribute("verifyCode"),
                 userForm.getVerifyCode()))
             return new Result<>(400,"验证码错误");
         try{
@@ -64,8 +61,7 @@ public class LoginController {
     @RequestMapping(value="/register",method = RequestMethod.POST)
     public Result<String> register(@Valid @RequestBody UserDTO user,
                                    HttpSession session){
-        if(user.getVerifyCode()==null||
-                !Objects.equals(session.getAttribute("verifyCode"),
+        if(!Objects.equals(session.getAttribute("verifyCode"),
                         user.getVerifyCode()))
             return new Result<>(400,"验证码错误");
         try{
@@ -85,34 +81,33 @@ public class LoginController {
         return "身份认证成功";
     }
     @RequestMapping(value="/sms",method=RequestMethod.POST)
-    public Map<String,Object> sms(@RequestBody Map<String,Object> requestMap,HttpServletRequest request)throws ClientException{
-        Map<String,Object> map = new HashMap<>();
-        String phone = requestMap.get("phoneNumber").toString();
+    public Result<String> sms(@RequestBody UserDTO userDTO)throws ClientException{
+        String phone = userDTO.getPhone();
         String code = StringUtils.getRandomCode(6);
         String param = "{\"code\":\""+code+"\"}";
         SendSmsResponse sendSmsResponse= SMSUtils.sendSms(phone,param);
-        map.put("phone",phone);
-        map.put("verifyCode",code);
-        request.getSession().setAttribute("CodePhone",map);
         if(sendSmsResponse.getCode().equals("OK")){
-            map.put("isOk","OK");
             redisTemplate.opsForValue().set(phone,code);
             redisTemplate.expire(phone,620, TimeUnit.SECONDS);
+            return new Result<>(200,"验证码发送成功");
         }
-        return map;
+        return new Result<>(500,"验证码发送失败");
     }
     @RequestMapping(value="/validate",method=RequestMethod.POST)
-    public Result<String> validate(@RequestBody Map<String,Object> requestMap) throws ClientException{
-        Map<String,Object> map = new HashMap<>();
-        String phone = requestMap.get("phone").toString();
-        String verifyCode = requestMap.get("verifyCode").toString();
+    public Result<String> validate(@RequestBody UserDTO userDTO){
+        String phone = userDTO.getPhone();
+        String verifyCode = userDTO.getVerifyCode();
         String authCode = redisTemplate.opsForValue().get(phone);
         if(authCode == null || authCode.isEmpty()){
             return new Result<>(404,"验证码失效");
         }else if(!authCode.equals(verifyCode)){
             return new Result<>(500,"验证码错误");
         }
+        try{
+            userService.phoneLogin(userDTO);
+        }catch (Exception e){
+            return new Result<>(500,"验证失败");
+        }
         return new Result<>(200,"验证成功");
-
     }
 }

@@ -13,9 +13,9 @@ import java.util.List;
 @ToString(callSuper = true)
 public class UserDTO extends User{
     private Long id;
-    @NotBlank(message="用户名不得为空")
+    @NotNull(message="用户名不得为空")
     private String username;
-    @NotBlank(message="密码不得为空")
+    @NotNull(message="密码不得为空")
     private String password;
     private String salt;
     private String verifyCode;

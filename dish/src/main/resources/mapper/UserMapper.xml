@@ -10,12 +10,16 @@
         select * from users where username = #{username}
     </select>
 
+    <select id="getUserByPhone" parameterType="java.lang.String">
+        select * from users where phone = #{phone}
+    </select>
+
     <select id="getUserById" parameterType="java.lang.Long">
         select * from users where id = #{id}
     </select>
 
     <insert id="addUser" parameterType="com.example.dish.entity.User" useGeneratedKeys="true" keyProperty="id">
-        insert into users ( username,password,salt ) values ( #{username}, #{password},#{salt})
+        insert into users ( username,password,salt,phone ) values ( #{username}, #{password},#{salt},#{phone})
     </insert>
 
     <delete id="deleteUser" parameterType="com.example.dish.entity.User">
@@ -23,7 +27,7 @@
     </delete>
 
     <update id="updateUser" parameterType="com.example.dish.entity.User">
-        update users set username = #{username}, password = #{password}, salt = #{salt} where id = #{id};
+        update users set username = #{username}, password = #{password}, salt = #{salt},phone = #{phone} where id = #{id};
     </update>
 
 </mapper>

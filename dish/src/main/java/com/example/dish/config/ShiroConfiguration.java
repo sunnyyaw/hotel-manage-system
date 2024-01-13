@@ -1,6 +1,7 @@
 package com.example.dish.config;
 
-import com.example.dish.realm.WJRealm;
+
+import com.example.dish.realm.UserPasswordRealm;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.codec.Base64;
 import org.apache.shiro.mgt.SecurityManager;
@@ -32,10 +33,10 @@ public class ShiroConfiguration {
         return securityManager;
     }
     @Bean
-    public WJRealm getWJRealm(){
-        WJRealm wjRealm = new WJRealm();
-        wjRealm.setCredentialsMatcher(hashedCredentialsMatcher());
-        return wjRealm;
+    public UserPasswordRealm getWJRealm(){
+        UserPasswordRealm userPasswordRealm = new UserPasswordRealm();
+        userPasswordRealm.setCredentialsMatcher(hashedCredentialsMatcher());
+        return userPasswordRealm;
     }
     @Bean
     public HashedCredentialsMatcher hashedCredentialsMatcher(){

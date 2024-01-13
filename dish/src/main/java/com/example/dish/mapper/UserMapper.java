@@ -12,6 +12,7 @@ public interface UserMapper {
     List<User> getAllUsers();
     User getUserById(Long id);
     User getUserByUsername(String username);
+    User getUserByPhone(String phone);
     void addUser(User user);
     void deleteUser(User user);
     void updateUser(User user);

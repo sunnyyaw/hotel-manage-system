@@ -9,6 +9,7 @@ import Users from '@/components/Users'
 import Permissions from '@/components/Permissions'
 import Roles from '@/components/Roles'
 import Login from '@/components/Login'
+import PhoneLogin from '@/components/PhoneLogin'
 import Home from '@/components/Home'
 import Error from '@/components/Error'
 Vue.use(Router)
@@ -103,6 +104,11 @@ export default new Router({
       path: '/login',
       name: 'Login',
       component: Login
+    },
+    {
+      path: '/phoneLogin',
+      name: 'phoneLogin',
+      component: PhoneLogin
     },
     {
       path: '*',

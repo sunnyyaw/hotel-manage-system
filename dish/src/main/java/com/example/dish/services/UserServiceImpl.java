@@ -90,6 +90,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public void phoneLogin(UserDTO userDTO) throws Exception {
+        String phone = userDTO.getPhone();
+        User user = this.getUserByUsername(phone);
+        if(user == null){
+            user = new User();
+            user.setUsername(phone);
+            user.setPassword(phone);
+            user.setPhone(phone);
+            this.encodePassword(user);
+            this.addUser(user);
+        }
+        Subject subject = SecurityUtils.getSubject();
+        UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(user.getPhone(),user.getPhone());
+        usernamePasswordToken.setRememberMe(userDTO.getRememberMe());
+        try{
+            subject.login(usernamePasswordToken);
+        }catch(AuthenticationException e){
+            throw e;
+        }
+    }
+
+    @Override
     public void logout() {
         Subject subject = SecurityUtils.getSubject();
         subject.logout();
@@ -223,6 +246,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByUsername(String username) {
         return userMapper.getUserByUsername(username);
+    }
+
+    @Override
+    public User getUserByPhone(String phone) {
+        return userMapper.getUserByPhone(phone);
     }
 
     @Override

@@ -12,6 +12,7 @@ public interface UserService extends UserMapper {
     UserDTO getUserInfo()throws UserNotFoundException;
     void saveUser(UserDTO userDTO)throws Exception;
     void login(UserDTO userForm)throws AuthenticationException;
+    void phoneLogin(UserDTO userDTO) throws Exception;
     void logout();
     void register(User user)throws Exception;
     void modifyPassword(String password)throws Exception;
