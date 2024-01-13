@@ -1,6 +1,7 @@
 package com.example.dish.services;
 
 import com.example.dish.entity.*;
+import com.example.dish.mapper.PermissionMapper;
 import com.example.dish.mapper.RoleMapper;
 import com.example.dish.mapper.Role_PermissionMapper;
 import com.example.dish.mapper.User_RoleMapper;
@@ -10,13 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 @Service
 public class RoleServiceImpl implements RoleService{
     @Autowired
     private RoleMapper roleMapper;
     @Autowired
-    private PermissionService permissionService;
+    private PermissionMapper permissionMapper;
     @Autowired
     private Role_PermissionMapper role_permissionMapper;
     @Autowired
@@ -41,7 +43,7 @@ public class RoleServiceImpl implements RoleService{
         roleDTO.setRoleName(roleDTO.getRoleName().trim());
         if(this.existsByRoleName(roleDTO.getId(),roleDTO.getRoleName()))
             throw new Exception("角色名已存在");
-        if (!this.existsById(roleDTO.getId()))
+        if (!this.existsByRoleId(roleDTO.getId()))
             this.addRole(roleDTO);
         else
             this.updateRole(roleDTO);
@@ -51,7 +53,7 @@ public class RoleServiceImpl implements RoleService{
     @Override
     @Transactional
     public void deleteRole(Long id) throws Exception {
-        if(!this.existsById(id))
+        if(!this.existsByRoleId(id))
             throw new Exception("角色不存在");
         this.deleteUser_RolesByRole(id);
         this.deleteRole_PermissionsByRole(id);
@@ -65,14 +67,14 @@ public class RoleServiceImpl implements RoleService{
     }
 
     @Override
-    public boolean existsById(Long id) {
+    public boolean existsByRoleId(Long id) {
         return !Objects.isNull(this.getRoleById(id));
     }
 
     @Override
     public List<Permission> getPermissionsByRole(Role role) {
         return this.getRole_PermissionsByRole(role).stream()
-                .map(role_permission -> permissionService.getPermissionById(role_permission.getPermissionId()))
+                .map(role_permission -> this.getPermissionById(role_permission.getPermissionId()))
                 .toList();
     }
 
@@ -84,7 +86,7 @@ public class RoleServiceImpl implements RoleService{
     }
 
     @Override
-    public List<Role_Permission> getRole_PermissionsById(Long id) {
+    public List<Role_Permission> getRole_PermissionsByRoleId(Long id) {
         return role_permissionMapper.getAllRole_Permissions().stream()
                 .filter(role_permission -> Objects.equals(id,role_permission.getRoleId()))
                 .toList();
@@ -125,7 +127,7 @@ public class RoleServiceImpl implements RoleService{
 
     @Override
     public void deleteRole_PermissionsByRole(Long id) {
-        this.getRole_PermissionsById(id).forEach(role_permission ->
+        this.getRole_PermissionsByRoleId(id).forEach(role_permission ->
                 role_permissionMapper.deleteRole_Permission(role_permission));
     }
 
@@ -152,5 +154,100 @@ public class RoleServiceImpl implements RoleService{
     @Override
     public void updateRole(Role role) {
         roleMapper.updateRole(role);
+    }
+
+
+
+    @Override
+    public List<Permission> getAllPermissionInfo() {
+        return this.getAllPermissions();
+    }
+
+    @Override
+    public void savePermission(Permission permission) throws Exception {
+        if(this.existsByURL(permission.getId(),permission.getUrl()))
+            throw new Exception("url已存在");
+        if(!this.existsByPermissionId(permission.getId())){
+            this.addPermission(permission);
+            this.addAllRole_Permission(permission);
+        }
+        else{
+            this.updatePermission(permission);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void addAllRole_Permission(Permission permission) {
+        this.getAllRoles().forEach(
+                role->role_permissionMapper.addRole_Permission(
+                        Role_Permission.builder()
+                                .permissionId(permission.getId())
+                                .roleId(role.getId())
+                                .build()));
+    }
+
+
+    @Override
+    @Transactional
+    public void deletePermission(Long id) throws Exception {
+        if(!this.existsByPermissionId(id))
+            throw new Exception("权限不存在");
+        this.deleteRole_PermissionsByPermission(id);
+        this.deletePermissionById(id);
+    }
+    @Override
+    public List<Permission> getAllPermissions() {
+        return permissionMapper.getAllPermissions();
+    }
+
+    @Override
+    public Permission getPermissionById(Long id) {
+        return permissionMapper.getPermissionById(id);
+    }
+
+    @Override
+    public void addPermission(Permission permission) {
+        permissionMapper.addPermission(permission);
+    }
+
+    @Override
+    public void deletePermissionById(Long id) {
+        permissionMapper.deletePermissionById(id);
+    }
+
+    @Override
+    public void updatePermission(Permission permission) {
+        permissionMapper.updatePermission(permission);
+    }
+
+    @Override
+    public boolean existsByURL(Long id, String url) {
+        return this.getAllPermissions().stream()
+                .anyMatch(perm-> !Objects.equals(perm.getId(),id)
+                        && Objects.equals(perm.getUrl(),url.trim()));
+    }
+
+    @Override
+    public boolean existsByPermissionId(Long id) {
+        return !Objects.isNull(this.getPermissionById(id));
+    }
+
+    @Override
+    public boolean anyMatchesURL(String url) {
+        return this.getAllPermissions().stream()
+                .anyMatch(permission -> Pattern.matches(permission.getUrl(),url));
+    }
+
+    @Override
+    public void deleteRole_PermissionsByPermission(Long id) {
+        this.getRole_PermissionsByPermissionId(id)
+                .forEach(role_perm->role_permissionMapper.deleteRole_Permission(role_perm));
+    }
+    @Override
+    public List<Role_Permission> getRole_PermissionsByPermissionId(Long id) {
+        return role_permissionMapper.getAllRole_Permissions().stream()
+                .filter(role_perm->Objects.equals(role_perm.getPermissionId(),id))
+                .toList();
     }
 }

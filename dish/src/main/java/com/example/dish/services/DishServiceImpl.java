@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,27 +50,19 @@ public class DishServiceImpl implements DishService{
     public BillDetailDTO getDetailsByBillId(Long billId) {
         List<Bill_Dish> bill_dishes = billDishMapper.getDishesByBillId(billId);
         List<DishDetailDTO> dishDetails = bill_dishes.stream().map(bill_dish -> {
-            DishDetailDTO dishDetail = new DishDetailDTO();
             Dish dish = this.getDishById(bill_dish.getDishId());
-            Category category = categoryMapper.getCategoryById(dish.getCategoryId());
-            int num = bill_dish.getNum();
-            BigDecimal price = dish.getUnitPrice().multiply(BigDecimal.valueOf(num));
-            dishDetail.setDishId(dish.getId());
-            dishDetail.setDishName(dish.getDishName());
-            if(!Objects.isNull(category))
-                dishDetail.setCategory(category.getName());
-            dishDetail.setUnitPrice(dish.getUnitPrice());
-            dishDetail.setNum(num);
-            dishDetail.setPrice(price);
-            return dishDetail;
+            return DishDetailDTO.builder().dishId(dish.getId())
+                    .dishName(dish.getDishName())
+                    .category(Optional.ofNullable(categoryMapper.getCategoryById(dish.getCategoryId()))
+                            .map(Category::getName).orElse(null))
+                    .unitPrice(dish.getUnitPrice())
+                    .num(bill_dish.getNum())
+                    .price(dish.getUnitPrice().multiply(BigDecimal.valueOf(bill_dish.getNum())))
+                    .build();
         }).toList();
-        BigDecimal totalPrice = dishDetails.stream()
-                .reduce(new DishDetailDTO(),(result,item)->{
-                    DishDetailDTO dishDetail = new DishDetailDTO();
-                    BigDecimal price = result.getPrice().add(item.getPrice());
-                    dishDetail.setPrice(price);
-                    return dishDetail;
-                }).getPrice();
+        BigDecimal totalPrice = dishDetails.stream().map(DishDetailDTO::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add
+                );
         BillDetailDTO billDetail = new BillDetailDTO();
         billDetail.setDishDetail(dishDetails);
         billDetail.setTotalPrice(totalPrice);

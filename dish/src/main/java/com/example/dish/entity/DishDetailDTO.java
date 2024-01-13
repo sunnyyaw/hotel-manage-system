@@ -1,8 +1,14 @@
 package com.example.dish.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Data
 public class DishDetailDTO {
     private Long dishId;

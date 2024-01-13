@@ -55,34 +55,38 @@ export default {
               confirmButtonText: '确定'})
           }
           this.loginLoading = false
+          this.refreshVerifyCode()
         })
         .catch(failResponse => {
           this.$alert('登录失败', '提示', {
             confirmButtonText: '确定'})
           this.loginLoading = false
+          this.refreshVerifyCode()
         })
     },
     register () {
       this.registerLoading = true
-      this.axios.post('/register',
-        {username: this.loginForm.username,
-          password: this.loginForm.password})
+      this.axios.post('/register', this.loginForm)
         .then(successResponse => {
           if (successResponse.data.code === 200) {
             this.$alert('注册成功', '提示', {
               confirmButtonText: '确定'
             })
+            this.$store.commit('login', this.loginForm)
+            this.$router.replace({path: '/index'})
           } else {
             this.$alert(successResponse.data.message, '提示', {
               confirmButtonText: '确定'
             })
           }
           this.registerLoading = false
+          this.refreshVerifyCode()
         })
         .catch(failResponse => {
           this.$alert('注册失败', '提示', {
             confirmButtonText: '确定'})
           this.registerLoading = false
+          this.refreshVerifyCode()
         })
     },
     refreshVerifyCode () {

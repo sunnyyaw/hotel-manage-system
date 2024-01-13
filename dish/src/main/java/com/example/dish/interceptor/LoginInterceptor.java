@@ -2,7 +2,7 @@ package com.example.dish.interceptor;
 
 import com.example.dish.entity.Permission;
 import com.example.dish.entity.User;
-import com.example.dish.services.PermissionService;
+import com.example.dish.services.RoleService;
 import com.example.dish.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,7 +21,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Autowired
     private UserService userService;
     @Autowired
-    private PermissionService permissionService;
+    private RoleService roleService;
     @Override
     public boolean preHandle (HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,Object o) throws Exception{
         if(HttpMethod.OPTIONS.toString().equals(httpServletRequest.getMethod())){
@@ -34,7 +34,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             return false;
         }
         String url = httpServletRequest.getRequestURI();
-        if(!permissionService.anyMatchesURL(url))
+        if(!roleService.anyMatchesURL(url))
             return true;
         User user = userService.getUserByUsername(subject.getPrincipal().toString());
         if(Objects.isNull(user))
