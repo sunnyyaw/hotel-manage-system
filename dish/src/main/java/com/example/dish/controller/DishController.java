@@ -35,8 +35,8 @@ public class DishController {
         return dishService.getAllDishDetails();
     }
     @RequestMapping(value = "/dishes/{id}",method = RequestMethod.GET)
-    public Dish getDishById(@PathVariable("id") Long id) {
-        return dishService.getDishById(id);
+    public Result<Dish> getDishById(@PathVariable("id") Long id) {
+        return new Result<>(200,"OK",dishService.getDishById(id));
     }
     @RequestMapping(value = "/dishes",method = RequestMethod.POST)
     public void addDish(@RequestBody Dish dish) {

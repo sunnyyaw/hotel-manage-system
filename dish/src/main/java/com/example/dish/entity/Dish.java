@@ -15,4 +15,6 @@ public class Dish extends RepresentationModel<Dish> {
     private String description;
     private BigDecimal unitPrice;
     private String cover;
+    private Category category;
+    private String averageScore;
 }

@@ -37,7 +37,13 @@ public class DishServiceImpl implements DishService{
 
     @Override
     public Dish getDishById(Long id){
-        return dishMapper.getDishById(id);
+        Dish dish = dishMapper.getDishById(id);
+        dish.setCategory(categoryMapper.getCategoryById(dish.getCategoryId()));
+        double score = dishCommentMapper.getAllDishComments().stream()
+                .filter(dishComment -> Objects.equals(dishComment.getDishId(),dish.getId()))
+                        .mapToInt(DishComment::getRate).summaryStatistics().getAverage();
+        dish.setAverageScore(String.format("%.2f",score));
+        return dish;
     }
 
     @Override
@@ -75,7 +81,7 @@ public class DishServiceImpl implements DishService{
     public List<Dish> getDishesByKeyword(String keyword)  {
         if(Objects.isNull(keyword) || keyword.isEmpty())
             return this.getAllDishes();
-        return this.getDishesByKeyword(keyword);
+        return dishMapper.getDishesByKeyword(keyword);
     }
 
     @Override

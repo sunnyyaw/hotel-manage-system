@@ -22,10 +22,8 @@ public class MyWebConfigurer implements WebMvcConfigurer {
     }
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String resourcePath = this.getClass().getResource("").toString()+"images/";
-        String path = URLDecoder.decode(resourcePath, StandardCharsets.UTF_8);
         registry.addResourceHandler("/files/**")
-                .addResourceLocations(path);
+                .addResourceLocations("file:images/");
     }
     @Override
     public void addCorsMappings(CorsRegistry registry){
