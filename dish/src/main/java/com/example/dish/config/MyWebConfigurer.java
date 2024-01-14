@@ -16,15 +16,13 @@ import java.nio.file.Paths;
 
 @Configuration
 public class MyWebConfigurer implements WebMvcConfigurer {
-    @Autowired
-    private StorageProperties storageProperties;
     @Bean
     public LoginInterceptor getLoginInterceptor() {
         return new LoginInterceptor();
     }
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String resourcePath = this.getClass().getResource("./").toString()+"images/";
+        String resourcePath = this.getClass().getResource("").toString()+"images/";
         String path = URLDecoder.decode(resourcePath, StandardCharsets.UTF_8);
         registry.addResourceHandler("/files/**")
                 .addResourceLocations(path);

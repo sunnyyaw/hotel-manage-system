@@ -45,7 +45,7 @@ public class UserController {
     @RequestMapping(value="/userInfo",method = RequestMethod.POST)
     public Result<User> modifyPassword(@Valid @RequestBody UserDTO userDTO){
         try{
-            userService.modifyPassword(userDTO.getPassword());
+            userService.saveUser(userDTO);
             return new Result<>(200,"修改成功");
         }catch (Exception e) {
             return new Result<>(400, e.getMessage());

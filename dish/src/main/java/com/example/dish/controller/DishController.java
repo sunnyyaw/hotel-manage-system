@@ -11,6 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 public class DishController {
 
@@ -21,7 +24,11 @@ public class DishController {
 
     @RequestMapping(value = "/dishes",method = RequestMethod.GET)
     public List<Dish> getAllDishes(@RequestParam(name="keyword",required = false)String keyword) {
-        return dishService.getDishesByKeyword(keyword);
+        List<Dish> dishes = dishService.getDishesByKeyword(keyword);
+        dishes.forEach(dish->
+                dish.add(linkTo(methodOn(DishController.class).getDishComments(dish.getId())).withRel("dishComment"))
+        );
+        return dishes;
     }
     @RequestMapping(value = "/dishDetails",method = RequestMethod.GET)
     public List<DishDetailDTO> getAllDishDetails() {
@@ -46,13 +53,55 @@ public class DishController {
     }
     @RequestMapping(value = "/categories/{categoryId}/dishes",method = RequestMethod.GET)
     public List<Dish> getDishesByCategoryId(@PathVariable Long categoryId) {
-        return dishService.getDishesByCategoryId(categoryId);
+        List<Dish> dishes = dishService.getDishesByCategoryId(categoryId);
+        dishes.forEach(dish->
+                dish.add(linkTo(methodOn(DishController.class).getDishComments(dish.getId())).withRel("dishComment"))
+        );
+        return dishes;
     }
 
     @RequestMapping(value = "/bills/{id}/dishes",method = RequestMethod.GET)
     public Result<BillDetailDTO> getBillDishes(@PathVariable("id") Long billId){
         BillDetailDTO details = dishService.getDetailsByBillId(billId);
         return new Result<>(200, "OK", details);
+    }
+    @RequestMapping(value = "/dishes/{id}/comments",method = RequestMethod.GET)
+    public Result<List<DishComment>> getDishComments(@PathVariable("id") Long dishId){
+        List<DishComment> dishComments = dishService.getDishCommentsByDishId(dishId);
+        return new Result<>(200, "OK", dishComments);
+    }
+    @RequestMapping(value = "/dishes/{id}/comments",method = RequestMethod.POST)
+    public Result<String> saveDishComment(@PathVariable("id") Long dishId,
+                                          @RequestBody DishComment dishComment){
+        try {
+            dishComment.setDishId(dishId);
+            dishService.saveDishComment(dishComment);
+            return new Result<>(200, "保存成功");
+        }catch (Exception e){
+            return new Result<>(500,e.getMessage());
+        }
+    }
+    @RequestMapping(value = "/dishes/{dishId}/comments/{id}",method = RequestMethod.PUT)
+    public Result<String> updateDishComment(@PathVariable("dishId") Long dishId,
+                                          @PathVariable("id")Long id,
+                                          @RequestBody DishComment dishComment){
+        try {
+            dishComment.setId(id);
+            dishComment.setDishId(dishId);
+            dishService.modifyDishComment(dishComment);
+            return new Result<>(200, "修改成功");
+        }catch (Exception e){
+            return new Result<>(500,e.getMessage());
+        }
+    }
+    @RequestMapping(value = "/dishes/{dishId}/comments/{id}",method = RequestMethod.DELETE)
+    public Result<String> deleteDishComment(@PathVariable("id")Long id){
+        try {
+            dishService.deleteDishCommentById(id);
+            return new Result<>(200, "删除成功");
+        }catch (Exception e){
+            return new Result<>(500,e.getMessage());
+        }
     }
 
     @RequestMapping(value = "/covers",method = RequestMethod.POST)

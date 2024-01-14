@@ -15,7 +15,7 @@ public class CoverServiceImpl implements CoverService{
         String fileName = UUID.randomUUID().toString().replace("-","") +
                 file.getOriginalFilename().substring(file.getOriginalFilename().length()-4);
         try {
-            String resourcePath = this.getClass().getResource("./").getPath()+"images/";
+            String resourcePath = this.getClass().getResource("").getPath()+"images/";
             String filePath = URLDecoder.decode(resourcePath, StandardCharsets.UTF_8) + fileName;
             File f = new File(filePath);
             if(!f.getParentFile().exists())

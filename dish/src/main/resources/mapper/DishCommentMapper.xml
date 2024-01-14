@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.dish.mapper.DishCommentMapper">
+
+    <select id="getDishCommentById" parameterType="java.lang.Long" resultType="com.example.dish.entity.DishComment">
+        select * from dishComments where id = #{id}
+    </select>
+
+    <select id="getAllDishComments" resultType="com.example.dish.entity.DishComment">
+        select * from dishComments
+    </select>
+
+    <insert id="addDishComment" parameterType="com.example.dish.entity.DishComment" useGeneratedKeys="true" keyProperty="id">
+        insert into dishComments ( dishId,userId,rate,comment,time) values ( #{dishId},#{userId}, #{rate}, #{comment},#{time})
+    </insert>
+
+    <delete id="deleteDishCommentById" parameterType="java.lang.Long">
+        delete from dishComments where id = #{id}
+    </delete>
+
+    <update id="updateDishComment" parameterType="com.example.dish.entity.DishComment">
+        update dishComments set dishId = #{dishId},userId = #{userId},rate = #{rate},comment = #{comment},time = #{time} where id = #{id}
+    </update>
+
+</mapper>

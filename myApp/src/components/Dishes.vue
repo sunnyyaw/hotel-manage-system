@@ -15,11 +15,14 @@
         </div>
         <div class="info">
             <div class="name">
-                <a href="">{{ item.dishName }}</a>
+                <router-link :to="'/dishes/' + item.id + '/comments'">{{ item.dishName }}</router-link>
             </div>
             <i class="el-icon-edit" @click="editDish(item)"></i>
             <i class="el-icon-delete" @click="deleteDish(item.id)"></i>
             <div class="price">{{ item.unitPrice }}元</div>
+            <router-link :to="'/dishes/' + item.id + '/comments'">
+              <el-button type="primary" size="small">查看评论</el-button>
+            </router-link>
         </div>
         </el-card>
         </el-tooltip>
@@ -52,6 +55,9 @@ export default{
     this.loadDishes()
   },
   methods: {
+    checkComment (dishId) {
+      this.$router.replace({path: '/dishes/' + dishId + '/comments'})
+    },
     loadDishes () {
       this.$axios.get('/dishes').then(resp => {
         if (resp && resp.status === 200) {
@@ -61,14 +67,7 @@ export default{
     },
     editDish (item) {
       this.$refs.edit.dialogFormVisible = true
-      this.$refs.edit.form = {
-        id: item.id,
-        cover: item.cover,
-        dishName: item.dishName,
-        categoryId: item.categoryId,
-        description: item.description,
-        unitPrice: item.unitPrice
-      }
+      this.$refs.edit.form = item
     },
     searchResult () {
       this.$axios.get('/dishes?keyword=' +

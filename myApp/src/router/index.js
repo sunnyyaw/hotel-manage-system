@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import AppIndex from '@/components/AppIndex'
 import DishIndex from '@/components/DishIndex'
+import DishInfo from '@/components/DishInfo'
 import CustomerIndex from '@/components/CustomerIndex'
 import UserIndex from '@/components/UserIndex'
 import UserInfo from '@/components/UserInfo'
@@ -43,6 +44,14 @@ export default new Router({
           path: '/dish',
           name: 'DishIndex',
           component: DishIndex,
+          meta: {
+            requireAuth: true
+          }
+        },
+        {
+          path: '/dishes/:dishId/comments',
+          name: 'DishInfo',
+          component: DishInfo,
           meta: {
             requireAuth: true
           }

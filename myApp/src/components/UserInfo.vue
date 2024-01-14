@@ -1,11 +1,19 @@
 <template>
-  <el-descriptions title="用户信息">
+  <div>
+  <el-descriptions class="margin-top" title="用户信息" :column="2" border>
     <el-descriptions-item label="用户名">{{ user.username }}</el-descriptions-item>
     <el-descriptions-item label="密码">
-      <el-input placeholder="请输入密码" v-model="user.password" show-password></el-input>
-      <el-button type="text" @click="modifyPassword()">修改密码</el-button>
+      <el-input placeholder="请输入密码" @change="user.needEncode=true" v-model="user.password" show-password></el-input>
+    </el-descriptions-item>
+    <el-descriptions-item label="电话">
+      <el-input placeholder="请输入电话号码" v-model="user.phone"></el-input>
+    </el-descriptions-item>
+    <el-descriptions-item label="角色">
+      <span v-for="item in user.roles" :key="item.id">{{ item.roleName }}</span>
     </el-descriptions-item>
   </el-descriptions>
+  <el-button type="primary" @click="modifyUser()">保存修改</el-button>
+  </div>
 </template>
 <script>
 export default{
@@ -41,7 +49,7 @@ export default{
           })
         })
     },
-    modifyPassword () {
+    modifyUser () {
       this.$axios.post('/userInfo', this.user)
         .then(resp => {
           if (resp && resp.data.code === 200) {
@@ -49,6 +57,7 @@ export default{
               type: 'success',
               message: '修改成功'
             })
+            this.loadUser()
           } else {
             this.$message({
               type: 'warning',

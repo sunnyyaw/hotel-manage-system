@@ -1,21 +1,19 @@
 package com.example.dish.services;
 
 import com.example.dish.entity.*;
-import com.example.dish.mapper.Bill_DishMapper;
-import com.example.dish.mapper.CategoryMapper;
-import com.example.dish.mapper.DishMapper;
+import com.example.dish.mapper.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.util.CastUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +26,10 @@ public class DishServiceImpl implements DishService{
     private Bill_DishMapper billDishMapper;
     @Autowired
     private CategoryMapper categoryMapper;
+    @Autowired
+    private DishCommentMapper dishCommentMapper;
+    @Autowired
+    private UserService userService;
     @Override
     public List<Dish> getAllDishes(){
         return dishMapper.getAllDishes();
@@ -98,6 +100,42 @@ public class DishServiceImpl implements DishService{
     }
 
     @Override
+    public List<DishComment> getDishCommentsByDishId(Long dishId) {
+        List<DishComment> dishComments =
+                this.getAllDishComments().stream().filter(dishComment ->
+                Objects.equals(dishId,dishComment.getDishId())).toList();
+        dishComments.forEach(dishComment ->{
+                dishComment.setUser(
+                        userService.getUserById(dishComment.getUserId()));
+                if(dishComment.getTime()!=null)
+                    dishComment.setFormattedTime(
+                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                                .format(dishComment.getTime()));
+        });
+        return dishComments;
+    }
+
+    @Override
+    public void saveDishComment(DishComment dishComment)throws Exception {
+        if(Objects.isNull(dishComment.getDishId())||
+        Objects.isNull(this.getDishById(dishComment.getDishId())))
+            throw new Exception("餐品不存在!");
+        String username = SecurityUtils.getSubject().getPrincipal().toString();
+        dishComment.setUserId(userService.getUserByUsername(username).getId());
+        dishComment.setTime(new Date(System.currentTimeMillis()));
+        this.addDishComment(dishComment);
+    }
+
+    @Override
+    public void modifyDishComment(DishComment dishComment) throws Exception {
+        if(Objects.isNull(dishComment.getDishId())||
+        Objects.isNull(dishComment.getId())||
+        Objects.isNull(this.getDishById(dishComment.getId())))
+            throw new Exception("评论不存在!");
+        this.updateDishComment(dishComment);
+    }
+
+    @Override
     public void addDish(Dish dish) {
         dishMapper.addDish(dish);
     }
@@ -118,5 +156,30 @@ public class DishServiceImpl implements DishService{
     @Override
     public void updateDish(Dish dish) {
         dishMapper.updateDish(dish);
+    }
+
+    @Override
+    public List<DishComment> getAllDishComments() {
+        return dishCommentMapper.getAllDishComments();
+    }
+
+    @Override
+    public DishComment getDishCommentById(Long id) {
+        return dishCommentMapper.getDishCommentById(id);
+    }
+
+    @Override
+    public void addDishComment(DishComment dishComment) {
+        dishCommentMapper.addDishComment(dishComment);
+    }
+
+    @Override
+    public void updateDishComment(DishComment dishComment) {
+        dishCommentMapper.updateDishComment(dishComment);
+    }
+
+    @Override
+    public void deleteDishCommentById(Long id) {
+        dishCommentMapper.deleteDishCommentById(id);
     }
 }
