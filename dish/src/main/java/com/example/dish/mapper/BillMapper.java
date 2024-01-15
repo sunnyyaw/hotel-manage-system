@@ -12,6 +12,7 @@ public interface BillMapper {
     List<Bill> getAllBills();
     List<Bill> getBillsByCustomerId(Long customerId);
     Bill getBillById(Long id);
-    int addBill(Bill bill);
-    int deleteBillById(Long id);
+    void updateBill(Bill bill);
+    void addBill(Bill bill);
+    void deleteBillById(Long id);
 }

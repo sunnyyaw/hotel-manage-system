@@ -8,6 +8,7 @@
         row-key="id"
         :data="bills"
         style="width: 100%"
+        ref="expandTable"
         @expand-change="loadDetails">
           <el-table-column type="expand">
             <template slot-scope="props">
@@ -57,7 +58,7 @@
           label="操作"
           width="100">
           <template slot-scope="scope">
-              <el-button @click="handleClick(scope.row.id)" type="text" size="small">查看明细</el-button>
+              <el-button @click="handleClick(scope.row)" type="text" size="small">查看明细</el-button>
               <el-button @click="deleteBill(scope.row.id)" type="text" size="small">删除</el-button>
           </template>
           </el-table-column>
@@ -121,7 +122,8 @@ export default {
             confirmButtonText: '确定'})
         })
     },
-    handleClick (billId) {
+    handleClick (row) {
+      this.$refs.expandTable.toggleRowExpansion(row)
     },
     deleteBill (id) {
       var path = '/bills/' + id

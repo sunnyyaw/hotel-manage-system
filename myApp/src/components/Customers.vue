@@ -1,15 +1,11 @@
 <template>
   <div>
     <el-row style="height: 840px;">
-      <search-bar @onSearch="searchResult" ref="searchBar"></search-bar>
-        <el-tooltip effect="dark" placement="right"
-        v-for="item in customers.slice((currentPage-1)*pageSize,currentPage*pageSize)"
-        :key="item.id">
-        <p slot="content" style="font-size: 13px;margin-bottom: 6px;">
-            <span>{{ item.description }}</span>
-        </p>
+      <search-bar ref="searchBar"></search-bar>
         <el-card style="width: 135px;margin-bottom: 20px;height: 233px;float: left;margin-right: 15px;"
-        class="dish" dishStyle="padding:10px" shadow="hover" >
+        class="dish" dishStyle="padding:10px" shadow="hover"
+        v-for="item in filteredCustomers.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+        :key="item.id">
         <div class="info">
             <p>{{ item.description }}</p>
             <i class="el-icon-delete" @click="deleteCustomer(item.id)"></i>
@@ -18,7 +14,6 @@
             <el-button size="small" type="primary" @click="selectBill(item.id)">查看账单</el-button>
         </div>
         </el-card>
-        </el-tooltip>
         <edit-customer @onSubmit="loadCustomers()" ref="edit"></edit-customer>
         <edit-bill ref="editBill"></edit-bill>
         <bill-table ref="billTable"></bill-table>
@@ -48,6 +43,15 @@ export default{
       pageSize: 15
     }
   },
+  computed: {
+    filteredCustomers: {
+      get () {
+        return this.customers.filter(customer => this.$refs.searchBar.keyword === '' ||
+          customer.id === Number(this.$refs.searchBar.keyword))
+      },
+      set (val) {}
+    }
+  },
   mounted: function () {
     this.loadCustomers()
   },
@@ -73,15 +77,6 @@ export default{
     selectBill (id) {
       this.$refs.billTable.dialogFormVisible = true
       this.$refs.billTable.customerId = id
-    },
-    searchResult () {
-      this.$axios.get('/customers/' +
-      this.$refs.searchBar.keyword, {})
-        .then(resp => {
-          if (resp && resp.status === 200) {
-            this.customers = [resp.data]
-          }
-        })
     },
     handleCurrentChange: function (currentPage) {
       this.currentPage = currentPage

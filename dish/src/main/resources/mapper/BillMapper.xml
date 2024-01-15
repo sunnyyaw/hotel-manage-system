@@ -15,8 +15,12 @@
     </select>
 
     <insert id="addBill" parameterType="com.example.dish.entity.Bill" useGeneratedKeys="true" keyProperty="id">
-        insert into bills ( customerId, genTime ) values ( #{customerId}, #{genTime})
+        insert into bills ( customerId,userId, genTime ) values ( #{customerId},#{userId}, #{genTime})
     </insert>
+
+    <update id="updateBill" parameterType="com.example.dish.entity.Bill">
+        update bills set customerId = #{customerId} , userId = #{userId}, genTime = #{genTime} where id = #{id}
+    </update>
 
     <delete id="deleteBillById" parameterType="java.lang.Long">
         delete from bills where id = #{id}

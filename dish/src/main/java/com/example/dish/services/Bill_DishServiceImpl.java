@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service
-public class Bill_DishServiceImpl implements  Bill_DishService{
+public class Bill_DishServiceImpl implements Bill_DishService{
     @Autowired
     private Bill_DishMapper billDishMapper;
     @Override
@@ -18,6 +18,11 @@ public class Bill_DishServiceImpl implements  Bill_DishService{
     @Override
     public Bill_Dish getBill_DishById(Long billId, Long dishId) {
         return billDishMapper.getBill_DishById(billId,dishId);
+    }
+
+    @Override
+    public List<Bill_Dish> getDishesByBillId(Long billId) {
+        return billDishMapper.getDishesByBillId(billId);
     }
 
     @Override
@@ -33,5 +38,10 @@ public class Bill_DishServiceImpl implements  Bill_DishService{
     @Override
     public int deleteBill_Dish(Bill_Dish bill_dish) {
         return billDishMapper.deleteBill_Dish(bill_dish);
+    }
+
+    @Override
+    public void deleteBill_DishByBillId(Long billId) {
+        billDishMapper.deleteBill_DishByBillId(billId);
     }
 }

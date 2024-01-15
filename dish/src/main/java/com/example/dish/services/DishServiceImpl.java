@@ -2,16 +2,12 @@ package com.example.dish.services;
 
 import com.example.dish.entity.*;
 import com.example.dish.mapper.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.util.CastUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,11 +15,9 @@ import java.util.stream.Collectors;
 @Service
 public class DishServiceImpl implements DishService{
     @Autowired
-    private RedisTemplate<String,Object> redisTemplate;
-    @Autowired
     private DishMapper dishMapper;
     @Autowired
-    private Bill_DishMapper billDishMapper;
+    private Bill_DishService billDishService;
     @Autowired
     private CategoryMapper categoryMapper;
     @Autowired
@@ -32,7 +26,13 @@ public class DishServiceImpl implements DishService{
     private UserService userService;
     @Override
     public List<Dish> getAllDishes(){
-        return dishMapper.getAllDishes();
+        return dishMapper.getAllDishes().stream().peek(dish->{
+            dish.setCategory(categoryMapper.getCategoryById(dish.getCategoryId()));
+            double score = dishCommentMapper.getAllDishComments().stream()
+                    .filter(dishComment -> Objects.equals(dishComment.getDishId(),dish.getId()))
+                    .mapToInt(DishComment::getRate).summaryStatistics().getAverage();
+            dish.setAverageScore(String.format("%.2f",score));
+        }).toList();
     }
 
     @Override
@@ -48,7 +48,7 @@ public class DishServiceImpl implements DishService{
 
     @Override
     public List<Dish> getDishesByBillId(Long billId){
-        List<Bill_Dish> bill_dishes = billDishMapper.getDishesByBillId(billId);
+        List<Bill_Dish> bill_dishes = billDishService.getDishesByBillId(billId);
         return bill_dishes.stream().map(
                 bill_dish -> this.getDishById(bill_dish.getDishId())
         ).collect(Collectors.toList());
@@ -56,7 +56,7 @@ public class DishServiceImpl implements DishService{
 
     @Override
     public BillDetailDTO getDetailsByBillId(Long billId) {
-        List<Bill_Dish> bill_dishes = billDishMapper.getDishesByBillId(billId);
+        List<Bill_Dish> bill_dishes = billDishService.getDishesByBillId(billId);
         List<DishDetailDTO> dishDetails = bill_dishes.stream().map(bill_dish -> {
             Dish dish = this.getDishById(bill_dish.getDishId());
             return DishDetailDTO.builder().dishId(dish.getId())
@@ -81,7 +81,13 @@ public class DishServiceImpl implements DishService{
     public List<Dish> getDishesByKeyword(String keyword)  {
         if(Objects.isNull(keyword) || keyword.isEmpty())
             return this.getAllDishes();
-        return dishMapper.getDishesByKeyword(keyword);
+        return dishMapper.getDishesByKeyword(keyword).stream().peek(dish->{
+            dish.setCategory(categoryMapper.getCategoryById(dish.getCategoryId()));
+            double score = dishCommentMapper.getAllDishComments().stream()
+                    .filter(dishComment -> Objects.equals(dishComment.getDishId(),dish.getId()))
+                    .mapToInt(DishComment::getRate).summaryStatistics().getAverage();
+            dish.setAverageScore(String.format("%.2f",score));
+        }).toList();
     }
 
     @Override

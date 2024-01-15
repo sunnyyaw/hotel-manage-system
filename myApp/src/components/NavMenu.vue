@@ -15,6 +15,7 @@ export default {
         {name: '/index', navItem: '首页'},
         {name: '/dish', navItem: '菜单'},
         {name: '/customer', navItem: '餐桌'},
+        {name: '/bill', navItem: '账单管理'},
         {name: '/user', navItem: '个人中心'}
       ]
     }

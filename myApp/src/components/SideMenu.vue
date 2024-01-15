@@ -21,9 +21,9 @@ export default {
   data () {
     return {
       navList: [
-        {id: '0', name: '全部'}
+        {id: 0, name: '全部'}
       ],
-      cid: ''
+      cid: 0
     }
   },
   mounted: function () {
@@ -31,7 +31,7 @@ export default {
   },
   methods: {
     loadCategories () {
-      this.navList = [{id: '0', name: '全部'}]
+      this.navList = [{id: 0, name: '全部'}]
       this.$axios.get('/categories')
         .then(resp => {
           if (resp && resp.status === 200) {
@@ -40,7 +40,7 @@ export default {
         })
     },
     handleSelect (index) {
-      this.cid = index
+      this.cid = Number(index)
       this.$emit('indexSelect')
     },
     editCategory (item) {

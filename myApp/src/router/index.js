@@ -7,6 +7,7 @@ import CustomerIndex from '@/components/CustomerIndex'
 import UserIndex from '@/components/UserIndex'
 import UserInfo from '@/components/UserInfo'
 import Users from '@/components/Users'
+import Bills from '@/components/Bills'
 import Permissions from '@/components/Permissions'
 import Roles from '@/components/Roles'
 import Login from '@/components/Login'
@@ -60,6 +61,14 @@ export default new Router({
           path: '/customer',
           name: 'CustomerIndex',
           component: CustomerIndex,
+          meta: {
+            requireAuth: true
+          }
+        },
+        {
+          path: '/bill',
+          name: 'Bills',
+          component: Bills,
           meta: {
             requireAuth: true
           }

@@ -17,19 +17,7 @@ export default {
   components: {SideMenu, Dishes},
   methods: {
     listByCategory () {
-      var cid = this.$refs.sideMenu.cid
-      var url = ''
-      if (cid === '0') {
-        url = 'dishes'
-      } else {
-        url = 'categories/' + cid + '/dishes'
-      }
-      this.$axios.get(url)
-        .then(resp => {
-          if (resp && resp.status === 200) {
-            this.$refs.dishesArea.dishes = resp.data
-          }
-        })
+      this.$refs.dishesArea.cid = this.$refs.sideMenu.cid
     }
   }
 }

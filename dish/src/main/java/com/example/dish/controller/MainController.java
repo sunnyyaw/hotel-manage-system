@@ -1,7 +1,6 @@
 package com.example.dish.controller;
 
 import com.example.dish.entity.Bill;
-import com.example.dish.entity.BillFormDTO;
 import com.example.dish.entity.Bill_Dish;
 import com.example.dish.services.BillService;
 import com.example.dish.services.Bill_DishService;
@@ -33,12 +32,12 @@ public class MainController {
         return billService.getBillById(id);
     }
     @RequestMapping(value = "/bills",method = RequestMethod.POST)
-    public int addBill(@RequestBody BillFormDTO billForm){
-        return billService.addBill(billForm);
+    public void addBill(@RequestBody Bill bill){
+        billService.saveBill(bill);
     }
     @RequestMapping(value = "/bills/{id}",method = RequestMethod.DELETE)
-    public int deleteBill(@PathVariable Long id){
-        return billService.deleteBillById(id);
+    public void deleteBill(@PathVariable Long id){
+        billService.deleteBillById(id);
     }
     @RequestMapping(value = "/bills_dishes",method = RequestMethod.GET)
     public List<Bill_Dish> getAllBill_Dish(){
