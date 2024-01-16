@@ -39,6 +39,8 @@ public class LoginInterceptor implements HandlerInterceptor {
         User user = userService.getUserByUsername(subject.getPrincipal().toString());
         if(Objects.isNull(user))
             throw new Exception("找不到用户");
+        if(userService.getRolesByUser(user).isEmpty())
+            return true;
         List<Permission> permissions = userService.getPermissionsByUser(user);
         if(permissions.stream().anyMatch(permission -> Pattern.matches(permission.getUrl(),url)))
             return true;

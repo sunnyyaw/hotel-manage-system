@@ -12,7 +12,7 @@ public interface UserService extends UserMapper{
     List<User> getAllUserInfo();
     User getUserInfo()throws UserNotFoundException;
     void saveUser(UserDTO userDTO)throws Exception;
-    void login(UserDTO userForm)throws AuthenticationException;
+    void login(User user)throws AuthenticationException;
     void phoneLogin(UserDTO userDTO) throws Exception;
     void logout();
     void register(User user)throws Exception;

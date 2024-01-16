@@ -71,11 +71,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void login(UserDTO userForm)throws AuthenticationException {
-        String username = userForm.getUsername();
+    public void login(User user)throws AuthenticationException {
+        String username = user.getUsername();
         Subject subject = SecurityUtils.getSubject();
-        UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(username,userForm.getPassword());
-        usernamePasswordToken.setRememberMe(userForm.getRememberMe());
+        UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(username,user.getPassword());
+        usernamePasswordToken.setRememberMe(user.getRememberMe());
         try{
             subject.login(usernamePasswordToken);
         }catch(AuthenticationException e){
@@ -113,8 +113,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void register(User user) throws Exception {
         String username = user.getUsername();
+        String password = user.getPassword();
         username = HtmlUtils.htmlEscape(username);
         if(this.existsByUsername(user.getId(),user.getUsername())){
             throw new UserExistException();
@@ -122,6 +124,8 @@ public class UserServiceImpl implements UserService {
         user.setUsername(username);
         this.encodePassword(user);
         this.addUser(user);
+        user.setPassword(password);
+        this.login(user);
     }
 
     @Override

@@ -20,8 +20,8 @@ public class DishController {
     private CoverService coverService;
 
     @RequestMapping(value = "/dishes",method = RequestMethod.GET)
-    public List<Dish> getAllDishes(@RequestParam(name="keyword",required = false)String keyword) {
-        return dishService.getDishesByKeyword(keyword);
+    public List<Dish> getAllDishes() {
+        return dishService.getAllDishes();
     }
     @RequestMapping(value = "/dishDetails",method = RequestMethod.GET)
     public List<DishDetailDTO> getAllDishDetails() {

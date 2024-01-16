@@ -104,7 +104,7 @@ export default{
     },
     editDish (item) {
       this.$refs.edit.dialogFormVisible = true
-      this.$refs.edit.form = item
+      this.$refs.edit.dish = item
     },
     handleCurrentChange: function (currentPage) {
       this.currentPage = currentPage
