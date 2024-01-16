@@ -1,4 +1,4 @@
-package com.example.dish.result;
+package com.example.dish.common;
 
 import lombok.Data;
 
@@ -19,5 +19,11 @@ public class Result<T> {
         this.code = code;
         this.message = message;
         this.data = data;
+    }
+    public static <T>Result<T> success(String message,T data){
+        return new Result<>(200,message,data);
+    }
+    public static <T>Result<T> error(String message,T data){
+        return new Result<>(400,message,data);
     }
 }

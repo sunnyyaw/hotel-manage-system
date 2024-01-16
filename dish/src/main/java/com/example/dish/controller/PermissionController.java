@@ -1,8 +1,7 @@
 package com.example.dish.controller;
 
 import com.example.dish.entity.Permission;
-import com.example.dish.entity.PermissionDTO;
-import com.example.dish.result.Result;
+import com.example.dish.common.Result;
 import com.example.dish.services.RoleService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -23,7 +22,7 @@ public class PermissionController {
         return new Result<>(200,"查询成功",permissions);
     }
     @RequestMapping(value = "/permissions",method = RequestMethod.POST)
-    public Result<String> savePermission(@Valid @RequestBody PermissionDTO permission){
+    public Result<String> savePermission(@Valid @RequestBody Permission permission){
         try{
             roleService.savePermission(permission);
         }catch (Exception e){

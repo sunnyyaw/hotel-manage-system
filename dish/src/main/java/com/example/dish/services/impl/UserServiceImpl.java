@@ -1,10 +1,13 @@
-package com.example.dish.services;
+package com.example.dish.services.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.dish.Exception.PasswordCollideException;
 import com.example.dish.Exception.UserExistException;
 import com.example.dish.Exception.UserNotFoundException;
 import com.example.dish.entity.*;
 import com.example.dish.mapper.*;
+import com.example.dish.services.RoleService;
+import com.example.dish.services.UserService;
 import com.example.dish.utils.PasswordUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -29,22 +32,16 @@ public class UserServiceImpl implements UserService {
     private Role_PermissionMapper role_permissionMapper;
 
     @Override
-    public List<UserDTO> getAllUserInfo() {
+    public List<User> getAllUserInfo() {
         List<User> users = this.getAllUsers();
-        return users.stream().map(user->{
+        return users.stream().peek(user->{
             List<Role> roles = this.getRolesByUser(user);
-            UserDTO userDTO = new UserDTO();
-            userDTO.setId(user.getId());
-            userDTO.setUsername(user.getUsername());
-            userDTO.setPassword(user.getPassword());
-            userDTO.setSalt(user.getSalt());
-            userDTO.setRoles(roles);
-            return userDTO;
+            user.setRoles(roles);
         }).toList();
     }
 
     @Override
-    public UserDTO getUserInfo() throws UserNotFoundException {
+    public User getUserInfo() throws UserNotFoundException {
         Subject subject = SecurityUtils.getSubject();
         String username = subject.getPrincipal().toString();
         User user = this.getUserByUsername(username);
@@ -52,14 +49,8 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException();
         }
         List<Role> roles = this.getRolesByUser(user);
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(user.getId());
-        userDTO.setUsername(user.getUsername());
-        userDTO.setPassword(user.getPassword());
-        userDTO.setPhone(user.getPhone());
-        userDTO.setSalt(user.getSalt());
-        userDTO.setRoles(roles);
-        return userDTO;
+        user.setRoles(roles);
+        return user;
     }
 
     @Override
@@ -236,7 +227,6 @@ public class UserServiceImpl implements UserService {
         userDTO.setPassword(encodedPassword);
     }
 
-    @Override
     public List<User> getAllUsers() {
         return userMapper.getAllUsers();
     }

@@ -1,18 +1,15 @@
 package com.example.dish.controller;
 
 import com.example.dish.entity.*;
-import com.example.dish.result.Result;
+import com.example.dish.common.Result;
 import com.example.dish.services.CoverService;
 import com.example.dish.services.DishService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 public class DishController {
@@ -24,11 +21,7 @@ public class DishController {
 
     @RequestMapping(value = "/dishes",method = RequestMethod.GET)
     public List<Dish> getAllDishes(@RequestParam(name="keyword",required = false)String keyword) {
-        List<Dish> dishes = dishService.getDishesByKeyword(keyword);
-        dishes.forEach(dish->
-                dish.add(linkTo(methodOn(DishController.class).getDishComments(dish.getId())).withRel("dishComment"))
-        );
-        return dishes;
+        return dishService.getDishesByKeyword(keyword);
     }
     @RequestMapping(value = "/dishDetails",method = RequestMethod.GET)
     public List<DishDetailDTO> getAllDishDetails() {
@@ -53,11 +46,7 @@ public class DishController {
     }
     @RequestMapping(value = "/categories/{categoryId}/dishes",method = RequestMethod.GET)
     public List<Dish> getDishesByCategoryId(@PathVariable Long categoryId) {
-        List<Dish> dishes = dishService.getDishesByCategoryId(categoryId);
-        dishes.forEach(dish->
-                dish.add(linkTo(methodOn(DishController.class).getDishComments(dish.getId())).withRel("dishComment"))
-        );
-        return dishes;
+        return dishService.getDishesByCategoryId(categoryId);
     }
 
     @RequestMapping(value = "/bills/{id}/dishes",method = RequestMethod.GET)

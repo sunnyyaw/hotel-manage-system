@@ -16,6 +16,7 @@ export default {
     return {
       navList: [
         {name: '/userInfo', navItem: '个人信息'},
+        {name: '/userBill', navItem: '用户账单'},
         {name: '/users', navItem: '用户管理'},
         {name: '/role', navItem: '角色管理'},
         {name: '/permission', navItem: '权限管理'}

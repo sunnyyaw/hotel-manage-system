@@ -3,7 +3,7 @@ package com.example.dish.controller;
 import com.example.dish.Exception.UserNotFoundException;
 import com.example.dish.entity.User;
 import com.example.dish.entity.UserDTO;
-import com.example.dish.result.Result;
+import com.example.dish.common.Result;
 import com.example.dish.services.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -19,15 +19,15 @@ public class UserController {
     @Autowired
     private UserService userService;
     @RequestMapping(value="/users",method = RequestMethod.GET)
-    public Result<List<UserDTO>> getAllUsers(){
-        List<UserDTO> users = userService.getAllUserInfo();
+    public Result<List<User>> getAllUsers(){
+        List<User> users = userService.getAllUserInfo();
         return new Result<>(200,"查询成功",users);
     }
 
     @RequestMapping(value="/userInfo",method = RequestMethod.GET)
-    public Result<UserDTO> getUserInfo(){
+    public Result<User> getUserInfo(){
         try{
-            UserDTO user = userService.getUserInfo();
+            User user = userService.getUserInfo();
             return new Result<>(200,"查找成功",user);
         }catch (UserNotFoundException e){
             return new Result<>(404,e.getMessage());

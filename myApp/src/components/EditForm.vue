@@ -1,6 +1,6 @@
 <template>
   <div>
-    <i class="el-icon-circle-plus-outline" @click="dialogFormVisible = true"></i>
+    <el-button type="primary" @click="dialogFormVisible = true">添加菜品</el-button>
     <el-dialog
       title="添加/修改餐品"
       :visible.sync="dialogFormVisible"

@@ -1,13 +1,14 @@
-package com.example.dish.services;
+package com.example.dish.services.impl;
 
 import com.example.dish.entity.Bill_Dish;
 import com.example.dish.mapper.Bill_DishMapper;
+import com.example.dish.services.Bill_DishService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service
-public class Bill_DishServiceImpl implements Bill_DishService{
+public class Bill_DishServiceImpl implements Bill_DishService {
     @Autowired
     private Bill_DishMapper billDishMapper;
     @Override

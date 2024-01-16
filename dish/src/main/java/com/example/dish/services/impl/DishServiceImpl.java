@@ -1,7 +1,10 @@
-package com.example.dish.services;
+package com.example.dish.services.impl;
 
 import com.example.dish.entity.*;
 import com.example.dish.mapper.*;
+import com.example.dish.services.Bill_DishService;
+import com.example.dish.services.DishService;
+import com.example.dish.services.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,7 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class DishServiceImpl implements DishService{
+public class DishServiceImpl implements DishService {
     @Autowired
     private DishMapper dishMapper;
     @Autowired
@@ -38,6 +41,7 @@ public class DishServiceImpl implements DishService{
     @Override
     public Dish getDishById(Long id){
         Dish dish = dishMapper.getDishById(id);
+        if(dish==null)return null;
         dish.setCategory(categoryMapper.getCategoryById(dish.getCategoryId()));
         double score = dishCommentMapper.getAllDishComments().stream()
                 .filter(dishComment -> Objects.equals(dishComment.getDishId(),dish.getId()))

@@ -1,7 +1,8 @@
-package com.example.dish.services;
+package com.example.dish.services.impl;
 
 import com.example.dish.entity.Customer;
 import com.example.dish.mapper.CustomerMapper;
+import com.example.dish.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class CustomerServiceImpl implements CustomerService{
+public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private CustomerMapper customerMapper;
     @Override

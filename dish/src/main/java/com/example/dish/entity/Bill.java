@@ -1,10 +1,11 @@
 package com.example.dish.entity;
 
+import com.example.dish.common.Status;
 import lombok.Data;
 
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
+
 
 @Data
 public class Bill {
@@ -15,4 +16,5 @@ public class Bill {
     private List<Bill_Dish> orders;
     private Customer customer;
     private User user;
+    private Status status;
 }

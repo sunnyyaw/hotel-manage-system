@@ -15,6 +15,9 @@
         <el-checkbox v-for="item in roles" :key="item.id" :label="item.roleName"
         v-model="item.checked"></el-checkbox>
       </el-form-item>
+      <el-form-item label="手机号">
+        <el-input v-model="userForm.phone"></el-input>
+      </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="clear" type="primary">取消</el-button>
@@ -28,26 +31,13 @@ export default {
   data () {
     return {
       dialogVisible: false,
-      userForm: {
-        id: '',
-        username: '',
-        password: '',
-        salt: '',
-        needEncode: false,
-        roles: []
-      },
+      userForm: '',
       roles: ''
     }
   },
   methods: {
     clear () {
-      this.userForm = {
-        id: '',
-        username: '',
-        password: '',
-        salt: '',
-        roles: []
-      }
+      this.userForm = ''
       this.dialogVisible = false
       this.roles = ''
     },

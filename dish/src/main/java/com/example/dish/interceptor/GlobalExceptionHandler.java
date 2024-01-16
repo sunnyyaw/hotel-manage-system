@@ -1,6 +1,6 @@
 package com.example.dish.interceptor;
 
-import com.example.dish.result.Result;
+import com.example.dish.common.Result;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.validation.BindException;

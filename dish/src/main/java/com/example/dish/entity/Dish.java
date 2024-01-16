@@ -1,14 +1,12 @@
 package com.example.dish.entity;
 
 import lombok.*;
-import org.springframework.hateoas.RepresentationModel;
 
 import java.math.BigDecimal;
 
 
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class Dish extends RepresentationModel<Dish> {
+public class Dish{
     private Long id;
     private String dishName;
     private Long categoryId;

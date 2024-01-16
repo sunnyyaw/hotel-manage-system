@@ -3,6 +3,7 @@ package com.example.dish;
 import com.example.dish.entity.Dish;
 import com.example.dish.mapper.DishMapper;
 import org.junit.jupiter.api.Test;
+import org.openjdk.jmh.annotations.Benchmark;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -15,6 +16,8 @@ import java.util.List;
 class DishApplicationTests {
 	@Autowired
 	DataSource dataSource;
+	@Autowired
+	DishMapper dishMapper;
 
 	@Test
 	void contextLoads() throws SQLException {
@@ -23,8 +26,6 @@ class DishApplicationTests {
 		System.out.println(connection);
 		connection.close();
 	}
-	@Autowired
-	DishMapper dishMapper;
 	@Test
 	public void toTest(){
 		List<Dish> dishes = dishMapper.getAllDishes();

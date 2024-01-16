@@ -67,13 +67,10 @@
         </el-table-column>
         <el-table-column
         fixed="right"
-        label="操作">
+        label="操作"
+        width="100">
         <template slot-scope="scope">
             <el-button @click="handleClick(scope.row)" type="text" size="small">查看明细</el-button>
-            <el-button v-if="scope.row.links.some(item => item.rel === 'complete')" @click="handleComplete(scope.row)"
-            type="text" size="small">结算</el-button>
-            <el-button v-if="scope.row.links.some(item => item.rel === 'cancel')" @click="handleCancel(scope.row)" type="text" size="small">撤销</el-button>
-            <el-button @click="deleteBill(scope.row.id)" type="text" size="small">删除</el-button>
         </template>
         </el-table-column>
     </el-table>
@@ -91,7 +88,7 @@ export default{
   },
   methods: {
     loadBills () {
-      this.$axios.get('/bills').then(resp => {
+      this.$axios.get('/userBills').then(resp => {
         if (resp && resp.status === 200) {
           resp.data.forEach(bill => {
             bill.details = []
@@ -148,52 +145,6 @@ export default{
     },
     handleClick (row) {
       this.$refs.expandTable.toggleRowExpansion(row)
-    },
-    handleComplete (row) {
-      let path = row.links.find(link => link.rel === 'complete').href
-      this.$axios.post(path)
-        .then(resp => {
-          if (resp && resp.status === 200) {
-            this.$message({
-              type: 'success',
-              message: resp.data.message
-            })
-            this.loadBills()
-          } else {
-            this.$message({
-              type: 'warning',
-              message: resp.data.message
-            })
-          }
-        }).catch(failresponse => {
-          this.$message({
-            type: 'danger',
-            message: failresponse.data
-          })
-        })
-    },
-    handleCancel (row) {
-      let path = row.links.find(link => link.rel === 'cancel').href
-      this.$axios.post(path)
-        .then(resp => {
-          if (resp && resp.status === 200) {
-            this.$message({
-              type: 'success',
-              message: resp.data.message
-            })
-            this.loadBills()
-          } else {
-            this.$message({
-              type: 'warning',
-              message: resp.data.message
-            })
-          }
-        }).catch(failresponse => {
-          this.$message({
-            type: 'danger',
-            message: failresponse.data
-          })
-        })
     }
   }
 }

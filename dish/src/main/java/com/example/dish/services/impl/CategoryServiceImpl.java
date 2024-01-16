@@ -1,8 +1,9 @@
-package com.example.dish.services;
+package com.example.dish.services.impl;
 
 import com.example.dish.entity.Category;
 import com.example.dish.entity.Dish;
 import com.example.dish.mapper.CategoryMapper;
+import com.example.dish.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class CategoryServiceImpl implements CategoryService{
+public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private CategoryMapper categoryMapper;
     @Override

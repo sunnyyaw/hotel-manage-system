@@ -4,6 +4,10 @@
     :data="users"
     style="width:100%;">
       <el-table-column
+      prop="id"
+      label="用户编号">
+      </el-table-column>
+      <el-table-column
       prop="username"
       label="用户名">
       </el-table-column>
@@ -12,6 +16,10 @@
       <template slot-scope="scope">
         <span v-for="item in scope.row.roles" :key="item.id">{{ item.roleName }} </span>
       </template>
+      </el-table-column>
+      <el-table-column
+      prop="phone"
+      label="手机号">
       </el-table-column>
       <el-table-column
         fixed="right"

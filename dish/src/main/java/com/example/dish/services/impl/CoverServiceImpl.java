@@ -1,4 +1,5 @@
-package com.example.dish.services;
+package com.example.dish.services.impl;
+import com.example.dish.services.CoverService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -9,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Service
-public class CoverServiceImpl implements CoverService{
+public class CoverServiceImpl implements CoverService {
     @Override
     public String coversUpload(MultipartFile file) throws Exception{
         String fileName = UUID.randomUUID().toString().replace("-","") +

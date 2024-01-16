@@ -6,6 +6,7 @@ import DishInfo from '@/components/DishInfo'
 import CustomerIndex from '@/components/CustomerIndex'
 import UserIndex from '@/components/UserIndex'
 import UserInfo from '@/components/UserInfo'
+import UserBill from '@/components/UserBill'
 import Users from '@/components/Users'
 import Bills from '@/components/Bills'
 import Permissions from '@/components/Permissions'
@@ -86,6 +87,14 @@ export default new Router({
               path: '/userInfo',
               name: 'UserInfo',
               component: UserInfo,
+              meta: {
+                requireAuth: true
+              }
+            },
+            {
+              path: '/userBill',
+              name: 'UserBill',
+              component: UserBill,
               meta: {
                 requireAuth: true
               }

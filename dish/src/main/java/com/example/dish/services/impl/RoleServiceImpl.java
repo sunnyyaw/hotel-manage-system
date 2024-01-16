@@ -1,10 +1,11 @@
-package com.example.dish.services;
+package com.example.dish.services.impl;
 
 import com.example.dish.entity.*;
 import com.example.dish.mapper.PermissionMapper;
 import com.example.dish.mapper.RoleMapper;
 import com.example.dish.mapper.Role_PermissionMapper;
 import com.example.dish.mapper.User_RoleMapper;
+import com.example.dish.services.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 @Service
-public class RoleServiceImpl implements RoleService{
+public class RoleServiceImpl implements RoleService {
     @Autowired
     private RoleMapper roleMapper;
     @Autowired
@@ -25,29 +26,25 @@ public class RoleServiceImpl implements RoleService{
     private User_RoleMapper user_roleMapper;
 
     @Override
-    public List<RoleDTO> getAllRoleInfo() {
+    public List<Role> getAllRoleInfo() {
         return this.getAllRoles().stream()
-                .map(role->{
+                .peek(role->{
                     List<Permission> permissions = this.getPermissionsByRole(role);
-                    RoleDTO roleDTO = new RoleDTO();
-                    roleDTO.setId(role.getId());
-                    roleDTO.setRoleName(role.getRoleName());
-                    roleDTO.setPermissions(permissions);
-                    return roleDTO;
+                    role.setPermissions(permissions);
                 }).toList();
     }
 
     @Override
     @Transactional
-    public void saveRole(RoleDTO roleDTO)throws Exception {
-        roleDTO.setRoleName(roleDTO.getRoleName().trim());
-        if(this.existsByRoleName(roleDTO.getId(),roleDTO.getRoleName()))
+    public void saveRole(Role role)throws Exception {
+        role.setRoleName(role.getRoleName().trim());
+        if(this.existsByRoleName(role.getId(),role.getRoleName()))
             throw new Exception("角色名已存在");
-        if (!this.existsByRoleId(roleDTO.getId()))
-            this.addRole(roleDTO);
+        if (!this.existsByRoleId(role.getId()))
+            this.addRole(role);
         else
-            this.updateRole(roleDTO);
-        this.updateRole_PermissionsByRole(roleDTO);
+            this.updateRole(role);
+        this.updateRole_PermissionsByRole(role);
     }
 
     @Override
@@ -100,9 +97,9 @@ public class RoleServiceImpl implements RoleService{
     }
 
     @Override
-    public void updateRole_PermissionsByRole(RoleDTO roleDTO) {
-        List<Role_Permission> role_permissions = this.getRole_PermissionsByRole(roleDTO);
-        List<Permission> newPermissions= roleDTO.getPermissions();
+    public void updateRole_PermissionsByRole(Role role) {
+        List<Role_Permission> role_permissions = this.getRole_PermissionsByRole(role);
+        List<Permission> newPermissions= role.getPermissions();
         role_permissions.forEach(role_permission->{
             if(newPermissions.stream().noneMatch(permission1 ->
                     Objects.equals(permission1.getId(),role_permission.getPermissionId())))
@@ -113,7 +110,7 @@ public class RoleServiceImpl implements RoleService{
                     Objects.equals(role_permission.getPermissionId(),permission.getId()))){
                 Role_Permission role_permission = new Role_Permission();
                 role_permission.setPermissionId(permission.getId());
-                role_permission.setRoleId(roleDTO.getId());
+                role_permission.setRoleId(role.getId());
                 role_permissionMapper.addRole_Permission(role_permission);
             }
         });

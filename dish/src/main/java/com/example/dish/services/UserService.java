@@ -1,5 +1,6 @@
 package com.example.dish.services;
 
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.dish.Exception.UserNotFoundException;
 import com.example.dish.entity.*;
 import com.example.dish.mapper.UserMapper;
@@ -7,9 +8,9 @@ import org.apache.shiro.authc.AuthenticationException;
 
 import java.util.List;
 
-public interface UserService extends UserMapper {
-    List<UserDTO> getAllUserInfo();
-    UserDTO getUserInfo()throws UserNotFoundException;
+public interface UserService extends UserMapper{
+    List<User> getAllUserInfo();
+    User getUserInfo()throws UserNotFoundException;
     void saveUser(UserDTO userDTO)throws Exception;
     void login(UserDTO userForm)throws AuthenticationException;
     void phoneLogin(UserDTO userDTO) throws Exception;

@@ -1,7 +1,7 @@
 package com.example.dish.controller;
 
-import com.example.dish.entity.RoleDTO;
-import com.example.dish.result.Result;
+import com.example.dish.entity.Role;
+import com.example.dish.common.Result;
 import com.example.dish.services.RoleService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -18,14 +18,14 @@ public class RoleController {
     private RoleService roleService;
 
     @RequestMapping(value="/roles",method = RequestMethod.GET)
-    public Result<List<RoleDTO>> getAllRoles(){
-        List<RoleDTO> roles = roleService.getAllRoleInfo();
+    public Result<List<Role>> getAllRoles(){
+        List<Role> roles = roleService.getAllRoleInfo();
         return new Result<>(200,"查询成功",roles);
     }
     @RequestMapping(value="/roles",method = RequestMethod.POST)
-    public Result<String> addRole(@Valid @RequestBody RoleDTO roleDTO){
+    public Result<String> addRole(@Valid @RequestBody Role role){
         try{
-            roleService.saveRole(roleDTO);
+            roleService.saveRole(role);
         } catch (Exception e) {
             return new Result<>(400,e.getMessage());
         }

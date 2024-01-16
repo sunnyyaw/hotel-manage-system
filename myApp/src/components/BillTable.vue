@@ -54,9 +54,13 @@
               label="生成时间">
           </el-table-column>
           <el-table-column
+              prop="state"
+              label="状态">
+          </el-table-column>
+          <el-table-column
           fixed="right"
           label="操作"
-          width="100">
+          size="100">
           <template slot-scope="scope">
               <el-button @click="handleClick(scope.row)" type="text" size="small">查看明细</el-button>
               <el-button @click="deleteBill(scope.row.id)" type="text" size="small">删除</el-button>
