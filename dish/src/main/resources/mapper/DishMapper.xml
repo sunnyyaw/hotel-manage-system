@@ -27,7 +27,15 @@
     </delete>
 
     <update id="updateDish" parameterType="com.example.dish.entity.Dish">
-        update dishes set dishName = #{dishName},description = #{description},unitPrice = #{unitPrice},categoryId = #{categoryId},cover = #{cover} where id = #{id}
+        update dishes
+        <set>
+            <if test="dishName!=null">dishName = #{dishName},</if>
+            <if test="description!=null">description = #{description},</if>
+            <if test="unitPrice!=null">unitPrice = #{unitPrice},</if>
+            <if test="categoryId!=null">categoryId = #{categoryId},</if>
+            <if test="cover!=null">cover = #{cover}</if>
+        </set>
+        where id = #{id}
     </update>
 
 </mapper>

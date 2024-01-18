@@ -1,13 +1,19 @@
 package com.example.dish.config;
 
+import com.example.dish.common.JacksonObjectMapper;
 import com.example.dish.interceptor.LoginInterceptor;
+import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 @Configuration
 public class MyWebConfig implements WebMvcConfigurer {
@@ -25,6 +31,11 @@ public class MyWebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/files/**")
                 .addResourceLocations("file:images/");
     }
+
+    /**
+     * 设置跨域配置
+     * @param registry
+     */
     @Override
     public void addCorsMappings(CorsRegistry registry){
         registry.addMapping("/**")
@@ -33,10 +44,21 @@ public class MyWebConfig implements WebMvcConfigurer {
                 .allowedMethods(CorsConfiguration.ALL)
                 .allowedHeaders(CorsConfiguration.ALL);
     }
+
+    /**
+     * 设置拦截器
+     * @param registry
+     */
     @Override
     public void addInterceptors(InterceptorRegistry registry){
         registry.addInterceptor(getLoginInterceptor())
                 .addPathPatterns("/**")
                 .excludePathPatterns("/login","/register","/verifyCode","/sms","/validate");
+    }
+    @Override
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters){
+        MappingJackson2HttpMessageConverter messageConverter = new MappingJackson2HttpMessageConverter();
+        messageConverter.setObjectMapper(new JacksonObjectMapper());
+        converters.add(0,messageConverter);
     }
 }

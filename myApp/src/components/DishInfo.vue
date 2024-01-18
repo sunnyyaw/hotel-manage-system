@@ -22,7 +22,7 @@
       <span v-else>匿名用户:</span>
       {{ item.comment }}
       <el-rate v-model="item.rate" disabled show-score score-template="{value}"></el-rate>
-      <span v-if="item.time!=null">时间:{{ item.formattedTime }}</span>
+      <span v-if="item.time!=null">时间:{{ item.time }}</span>
       <span v-else>时间:未知</span>
       <el-divider></el-divider>
     </div>

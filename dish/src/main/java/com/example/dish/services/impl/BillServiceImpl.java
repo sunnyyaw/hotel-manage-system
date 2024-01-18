@@ -1,5 +1,6 @@
 package com.example.dish.services.impl;
 
+import com.example.dish.common.Query;
 import com.example.dish.common.Status;
 import com.example.dish.entity.Bill;
 import com.example.dish.entity.Bill_Dish;
@@ -33,12 +34,17 @@ public class BillServiceImpl implements BillService {
         return billMapper.getAllBills();
     }
 
+
     @Override
-    public List<Bill> listAllBills() {
-        return billMapper.getAllBills().stream().peek(bill->{
+    public List<Bill> listBills(Query query) {
+        return billMapper.listBills(query).stream().peek(bill->{
             bill.setUser(userService.getUserById(bill.getUserId()));
             bill.setCustomer(customerMapper.getCustomerById(bill.getCustomerId()));
         }).toList();
+    }
+    @Override
+    public int count(Query query){
+        return billMapper.count(query);
     }
 
     @Override

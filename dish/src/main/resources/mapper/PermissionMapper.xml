@@ -19,7 +19,12 @@
     </delete>
 
     <update id="updatePermission" parameterType="com.example.dish.entity.Permission">
-        update permissions set url = #{url}, description = #{description} where id = #{id}
+        update permissions
+        <set>
+            <if test="url!=null">url = #{url},</if>
+            <if test="description!=null">description = #{description}</if>
+        </set>
+        where id = #{id}
     </update>
 
 </mapper>

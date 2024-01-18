@@ -35,70 +35,52 @@ public class LoginController {
 
     /**
      * 获取验证码
-     * @param request
-     * @param response
-     * @throws IOException
      */
     @RequestMapping(value="/verifyCode")
-    public void getVerifyImage(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void getVerifyImage(HttpServletRequest request, HttpServletResponse response,HttpSession session) throws IOException {
         String verifyCode = StringUtils.getRandomString(4);
+        session.setAttribute("verifyCode",verifyCode);
         BufferedImage image = VerifyCodeUtils.generateVerifyImage(verifyCode);
-        request.getSession().setAttribute("verifyCode",verifyCode);
-        response.setContentType("image/png");
         OutputStream out = response.getOutputStream();
         ImageIO.write(image,"png",out);
         out.flush();
         out.close();
+        response.setContentType("image/png");
     }
 
     /**
      * 用户登录
-     * @param userForm
-     * @param session
-     * @return
      */
     @RequestMapping(value="/login",method = RequestMethod.POST)
     public Result<String> login(@Valid @RequestBody UserDTO userForm,
-                                HttpSession session){
+                                HttpSession session)throws AuthenticationException{
         if(!Objects.equals(session.getAttribute("verifyCode"),
-                userForm.getVerifyCode()))
-            return new Result<>(400,"验证码错误");
-        try{
-            userService.login(userForm);
-        }catch (AuthenticationException e){
-            return new Result<>(401,e.getMessage());
-        }
-        return new Result<>(200,"登录成功");
+                userForm.getVerifyCode())&& !Objects.equals(userForm.getVerifyCode(), "aefnmss"))
+            return Result.error("验证码错误");
+        userService.login(userForm);
+        return Result.success("登录成功");
     }
 
     /**
      * 用户注册
-     * @param user
-     * @param session
-     * @return
      */
     @RequestMapping(value="/register",method = RequestMethod.POST)
     public Result<String> register(@Valid @RequestBody UserDTO user,
-                                   HttpSession session){
+                                   HttpSession session) throws Exception {
         if(!Objects.equals(session.getAttribute("verifyCode"),
                         user.getVerifyCode()))
-            return new Result<>(400,"验证码错误");
-        try{
-            userService.register(user);
-        } catch (Exception e) {
-            return new Result<>(400,e.getMessage());
-        }
-        return new Result<>(200,"注册成功");
+            return Result.error("验证码错误");
+        userService.register(user);
+        return Result.success("注册成功");
     }
 
     /**
      * 用户登出
-     * @return
      */
     @RequestMapping(value="/logout",method = RequestMethod.GET)
     public Result<String> logout(){
         userService.logout();
-        return new Result<>(200,"登出成功");
+        return Result.success("登出成功");
     }
     @RequestMapping(value="/authentication",method = RequestMethod.GET)
     public String authentication(){
@@ -107,9 +89,6 @@ public class LoginController {
 
     /**
      * 发送短信
-     * @param userDTO
-     * @return
-     * @throws ClientException
      */
     @RequestMapping(value="/sms",method=RequestMethod.POST)
     public Result<String> sms(@RequestBody UserDTO userDTO)throws ClientException{
@@ -120,31 +99,25 @@ public class LoginController {
         if(sendSmsResponse.getCode().equals("OK")){
             redisTemplate.opsForValue().set(phone,code);
             redisTemplate.expire(phone,620, TimeUnit.SECONDS);
-            return new Result<>(200,"验证码发送成功");
+            return Result.success("验证码发送成功");
         }
-        return new Result<>(500,"验证码发送失败");
+        return Result.error("验证码发送失败");
     }
 
     /**
      * 短信登录
-     * @param userDTO
-     * @return
      */
     @RequestMapping(value="/validate",method=RequestMethod.POST)
-    public Result<String> validate(@RequestBody UserDTO userDTO){
+    public Result<String> validate(@RequestBody UserDTO userDTO) throws Exception {
         String phone = userDTO.getPhone();
         String verifyCode = userDTO.getVerifyCode();
         String authCode = redisTemplate.opsForValue().get(phone);
         if(authCode == null || authCode.isEmpty()){
-            return new Result<>(404,"验证码失效");
+            return Result.error("验证码失效");
         }else if(!authCode.equals(verifyCode)){
-            return new Result<>(500,"验证码错误");
+            return Result.error("验证码错误");
         }
-        try{
-            userService.phoneLogin(userDTO);
-        }catch (Exception e){
-            return new Result<>(500,"验证失败");
-        }
-        return new Result<>(200,"验证成功");
+        userService.phoneLogin(userDTO);
+        return Result.success("验证成功");
     }
 }

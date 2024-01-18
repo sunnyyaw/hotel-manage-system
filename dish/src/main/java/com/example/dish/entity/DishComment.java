@@ -13,5 +13,4 @@ public class DishComment {
     private String comment;
     private Date time;
     private User user;
-    private String formattedTime;
 }

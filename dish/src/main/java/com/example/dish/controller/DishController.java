@@ -29,7 +29,7 @@ public class DishController {
     }
     @RequestMapping(value = "/dishes/{id}",method = RequestMethod.GET)
     public Result<Dish> getDishById(@PathVariable("id") Long id) {
-        return new Result<>(200,"OK",dishService.getDishById(id));
+        return Result.success("查询成功",dishService.getDishById(id));
     }
     @RequestMapping(value = "/dishes",method = RequestMethod.POST)
     public void addDish(@RequestBody Dish dish) {
@@ -52,45 +52,33 @@ public class DishController {
     @RequestMapping(value = "/bills/{id}/dishes",method = RequestMethod.GET)
     public Result<BillDetailDTO> getBillDishes(@PathVariable("id") Long billId){
         BillDetailDTO details = dishService.getDetailsByBillId(billId);
-        return new Result<>(200, "OK", details);
+        return Result.success("查询成功", details);
     }
     @RequestMapping(value = "/dishes/{id}/comments",method = RequestMethod.GET)
     public Result<List<DishComment>> getDishComments(@PathVariable("id") Long dishId){
         List<DishComment> dishComments = dishService.getDishCommentsByDishId(dishId);
-        return new Result<>(200, "OK", dishComments);
+        return Result.success( "查询成功", dishComments);
     }
     @RequestMapping(value = "/dishes/{id}/comments",method = RequestMethod.POST)
     public Result<String> saveDishComment(@PathVariable("id") Long dishId,
-                                          @RequestBody DishComment dishComment){
-        try {
-            dishComment.setDishId(dishId);
-            dishService.saveDishComment(dishComment);
-            return new Result<>(200, "保存成功");
-        }catch (Exception e){
-            return new Result<>(500,e.getMessage());
-        }
+                                          @RequestBody DishComment dishComment) throws Exception {
+        dishComment.setDishId(dishId);
+        dishService.saveDishComment(dishComment);
+        return Result.success("保存成功");
     }
     @RequestMapping(value = "/dishes/{dishId}/comments/{id}",method = RequestMethod.PUT)
     public Result<String> updateDishComment(@PathVariable("dishId") Long dishId,
                                           @PathVariable("id")Long id,
-                                          @RequestBody DishComment dishComment){
-        try {
-            dishComment.setId(id);
-            dishComment.setDishId(dishId);
-            dishService.modifyDishComment(dishComment);
-            return new Result<>(200, "修改成功");
-        }catch (Exception e){
-            return new Result<>(500,e.getMessage());
-        }
+                                          @RequestBody DishComment dishComment) throws Exception {
+        dishComment.setId(id);
+        dishComment.setDishId(dishId);
+        dishService.modifyDishComment(dishComment);
+        return Result.success("修改成功");
     }
     @RequestMapping(value = "/dishes/{dishId}/comments/{id}",method = RequestMethod.DELETE)
     public Result<String> deleteDishComment(@PathVariable("id")Long id){
-        try {
-            dishService.deleteDishCommentById(id);
-            return new Result<>(200, "删除成功");
-        }catch (Exception e){
-            return new Result<>(500,e.getMessage());
-        }
+        dishService.deleteDishCommentById(id);
+        return Result.success("删除成功");
     }
 
     @RequestMapping(value = "/covers",method = RequestMethod.POST)

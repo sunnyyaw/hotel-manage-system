@@ -1,15 +1,17 @@
 package com.example.dish.services;
 
+import com.example.dish.common.Query;
 import com.example.dish.entity.Bill;
 
 import java.util.List;
 
 public interface BillService {
     List<Bill> getAllBills();
-    List<Bill> listAllBills();
+    List<Bill> listBills(Query query);
     List<Bill> getBillsByCustomerId(Long customerId);
     List<Bill> getBillsByUserId(Long userId);
     List<Bill> getUserBills();
+    int count(Query query);
 
     Bill getBillById(Long id);
     void saveBill(Bill bill);

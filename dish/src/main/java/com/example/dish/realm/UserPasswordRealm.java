@@ -1,7 +1,9 @@
 package com.example.dish.realm;
 
+import com.example.dish.entity.Permission;
+import com.example.dish.entity.Role;
 import com.example.dish.entity.User;
-import com.example.dish.mapper.UserMapper;
+import com.example.dish.services.UserService;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -13,11 +15,12 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.Objects;
 
 public class UserPasswordRealm extends AuthorizingRealm {
     @Autowired
-    private UserMapper userMapper;
+    private UserService userService;
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
         return new SimpleAuthorizationInfo();
@@ -26,7 +29,7 @@ public class UserPasswordRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         String username = authenticationToken.getPrincipal().toString();
-        User user = userMapper.getUserByUsername(username);
+        User user = userService.getUserByUsername(username);
         if(Objects.isNull(user)){
             throw new AuthenticationException("用户不存在");
         }

@@ -15,7 +15,11 @@
     </insert>
 
     <update id="updateCategory" parameterType="com.example.dish.entity.Category">
-        update categories set name = #{name} where id = #{id}
+        update categories
+        <set>
+            <if test="name!=null">name = #{name}</if>
+        </set>
+        where id = #{id}
     </update>
 
     <delete id="deleteCategoryById" parameterType="java.lang.Long">

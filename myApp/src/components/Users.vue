@@ -1,5 +1,19 @@
 <template>
   <div>
+    <el-row>
+      <el-col :span=12>
+        <el-input
+        placeholder="输入用户名搜索"
+        v-model="input"
+        clearable
+        @blur="loadUsers">
+        <i slot="prefix" class="el-input__icon el-icon-search"></i>
+        </el-input>
+      </el-col>
+      <el-col :span=12>
+        <el-button @click="handleAdd" type="primary">添加用户</el-button>
+      </el-col>
+    </el-row>
     <el-table
     :data="users"
     style="width:100%;">
@@ -33,9 +47,14 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-row>
-        <el-button @click="handleAdd" type="primary">添加用户</el-button>
-    </el-row>
+    <el-pagination
+    @size-change="handleSizeChange"
+    @current-change="handleCurrentChange"
+    :current-page="currentPage"
+    :page-size="pageSize"
+    :total="count"
+    layout="total, sizes, prev, pager, next, jumper">
+    </el-pagination>
     <user-form @onSubmit="loadUsers" ref="userForm"></user-form>
   </div>
 </template>
@@ -46,7 +65,11 @@ export default {
   components: {UserForm},
   data () {
     return {
-      users: []
+      users: [],
+      pageSize: 10,
+      count: 0,
+      currentPage: 1,
+      input: ''
     }
   },
   mounted: function () {
@@ -91,22 +114,26 @@ export default {
       this.$refs.userForm.dialogVisible = true
     },
     loadUsers () {
-      this.$axios.get('/users')
+      this.$axios.get(`/users?currentPage=${this.currentPage}&pageSize=${this.pageSize}&username=${this.input}`)
         .then(resp => {
-          if (resp && resp.data.code === 200) {
-            this.users = resp.data.data
-          } else {
-            this.$message({
-              type: 'warning',
-              message: resp.data.message
-            })
-          }
-        }).catch(failResponse => {
+          this.currentPage = 1
+          this.users = resp.data.data
+          this.count = resp.data.count
+        }
+        ).catch(failResponse => {
           this.$message({
             type: 'error',
-            message: '出错'
+            message: `系统接口${failResponse.status}错误`
           })
         })
+    },
+    handleCurrentChange (currentPage) {
+      this.currentPage = currentPage
+      this.loadUsers()
+    },
+    handleSizeChange (pageSize) {
+      this.pageSize = pageSize
+      this.loadUsers()
     }
   }
 }

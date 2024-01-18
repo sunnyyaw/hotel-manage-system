@@ -6,12 +6,19 @@
         select * from bills
     </select>
 
-    <select id="getBillById" parameterType="java.lang.Long" resultType="com.example.dish.entity.Bill">
-        select * from bills where id = #{id}
+    <select id="count" parameterType="Map" resultType="int">
+        select count(*) from bills
     </select>
 
-    <select id="getBillsByCustomerId" parameterType="java.lang.Long">
-        select * from bills where customerId = #{customerId}
+    <select id="listBills" parameterType="Map" resultType="com.example.dish.entity.Bill">
+        select * from bills order by id
+        <if test="current!=null and pageSize!=null">
+            offset #{current} rows fetch next #{pageSize} rows only
+        </if>
+    </select>
+
+    <select id="getBillById" parameterType="java.lang.Long" resultType="com.example.dish.entity.Bill">
+        select * from bills where id = #{id}
     </select>
 
     <insert id="addBill" parameterType="com.example.dish.entity.Bill" useGeneratedKeys="true" keyProperty="id">
@@ -19,7 +26,14 @@
     </insert>
 
     <update id="updateBill" parameterType="com.example.dish.entity.Bill">
-        update bills set customerId = #{customerId} , userId = #{userId}, genTime = #{genTime},status = #{status} where id = #{id}
+        update bills
+        <set>
+            <if test="customerId!=null">customerId = #{customerId} ,</if>
+            <if test="userId!=null">userId = #{userId},</if>
+            <if test="genTime!=null">genTime = #{genTime},</if>
+            <if test="status!=null">status = #{status}</if>
+        </set>
+        where id = #{id}
     </update>
 
     <delete id="deleteBillById" parameterType="java.lang.Long">

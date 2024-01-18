@@ -1,12 +1,12 @@
 package com.example.dish.services.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.dish.Exception.PasswordCollideException;
 import com.example.dish.Exception.UserExistException;
 import com.example.dish.Exception.UserNotFoundException;
+import com.example.dish.common.Query;
 import com.example.dish.entity.*;
 import com.example.dish.mapper.*;
-import com.example.dish.services.RoleService;
+import com.example.dish.services.RolePermService;
 import com.example.dish.services.UserService;
 import com.example.dish.utils.PasswordUtils;
 import org.apache.shiro.SecurityUtils;
@@ -25,15 +25,15 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
     @Autowired
-    private RoleService roleService;
+    private RolePermService roleService;
     @Autowired
     private User_RoleMapper user_roleMapper;
     @Autowired
     private Role_PermissionMapper role_permissionMapper;
 
     @Override
-    public List<User> getAllUserInfo() {
-        List<User> users = this.getAllUsers();
+    public List<User> listUsers(Query query) {
+        List<User> users = userMapper.listUsers(query);
         return users.stream().peek(user->{
             List<Role> roles = this.getRolesByUser(user);
             user.setRoles(roles);
@@ -126,15 +126,6 @@ public class UserServiceImpl implements UserService {
         this.addUser(user);
         user.setPassword(password);
         this.login(user);
-    }
-
-    @Override
-    public void modifyPassword(String password) throws Exception {
-        String username = SecurityUtils.getSubject().getPrincipal().toString();
-        User user= this.getUserByUsername(username);
-        user.setPassword(password);
-        this.encodePassword(user);
-        this.updateUser(user);
     }
 
     @Override
@@ -236,6 +227,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public int count(Query query) {
+        return userMapper.count(query);
+    }
+
+    @Override
     public User getUserById(Long id) {
         return userMapper.getUserById(id);
     }
@@ -258,6 +254,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(User user) {
         userMapper.deleteUser(user);
+    }
+
+    @Override
+    public void deleteUsers(List<Long> ids) {
+        userMapper.deleteUsers(ids);
     }
 
     @Override

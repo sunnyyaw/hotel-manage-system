@@ -6,6 +6,28 @@
         select * from users
     </select>
 
+    <select id="count" parameterType="Map" resultType="int">
+        select count(*) from users
+        <where>
+            <if test="username!=null and username!=''">
+                username like concat('%',#{username},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="listUsers" parameterType="Map" resultType="com.example.dish.entity.User">
+        select * from users
+        <where>
+            <if test="username!=null and username!=''">
+                username like concat('%',#{username},'%')
+            </if>
+        </where>
+        order by id
+        <if test="current!=null and pageSize!= null">
+            offset #{current} rows fetch next #{pageSize} rows only
+        </if>
+    </select>
+
     <select id="getUserByUsername" parameterType="java.lang.String">
         select * from users where username = #{username}
     </select>
@@ -26,8 +48,22 @@
         delete from users where id = #{id}
     </delete>
 
+    <delete id="deleteUsers">
+        delete form users where id in
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
     <update id="updateUser" parameterType="com.example.dish.entity.User">
-        update users set username = #{username}, password = #{password}, salt = #{salt},phone = #{phone} where id = #{id};
+        update users
+        <set>
+            <if test="username!=null">username = #{username}, </if>
+            <if test="password!=null">password = #{password},</if>
+            <if test="salt!=null">salt = #{salt},</if>
+            <if test="phone!=null">phone = #{phone}</if>
+        </set>
+        where id = #{id}
     </update>
 
 </mapper>

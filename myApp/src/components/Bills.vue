@@ -1,4 +1,5 @@
 <template>
+  <div>
     <el-table
     row-key="id"
     :data="bills"
@@ -77,13 +78,26 @@
         </template>
         </el-table-column>
     </el-table>
+    <el-pagination
+    @size-change="handleSizeChange"
+    @current-change="handleCurrentChange"
+    :current-page="currentPage"
+    :page-size="pageSize"
+    :total="count"
+    layout="total, sizes, prev, pager, next, jumper">
+    </el-pagination>
+  </div>
 </template>
 <script>
 export default{
   name: 'Bills',
   data () {
     return {
-      bills: []
+      bills: [],
+      currentPage: 1,
+      totalPage: 1,
+      pageSize: 10,
+      count: 0
     }
   },
   mounted: function () {
@@ -91,13 +105,15 @@ export default{
   },
   methods: {
     loadBills () {
-      this.$axios.get('/bills').then(resp => {
+      this.$axios.get(`/bills?currentPage=${this.currentPage}&pageSize=${this.pageSize}`).then(resp => {
         if (resp && resp.status === 200) {
-          resp.data.forEach(bill => {
+          resp.data.data.forEach(bill => {
             bill.details = []
             bill.isLoad = false
           })
-          this.bills = resp.data
+          this.bills = resp.data.data
+          this.totalPage = resp.data.totalPage
+          this.count = resp.data.count
         }
       }).catch(failresponse => {
         this.$message({
@@ -194,6 +210,14 @@ export default{
             message: failresponse.data
           })
         })
+    },
+    handleCurrentChange (currentPage) {
+      this.currentPage = currentPage
+      this.loadBills()
+    },
+    handleSizeChange (pageSize) {
+      this.pageSize = pageSize
+      this.loadBills()
     }
   }
 }

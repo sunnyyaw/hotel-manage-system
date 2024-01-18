@@ -19,7 +19,15 @@
     </delete>
 
     <update id="updateDishComment" parameterType="com.example.dish.entity.DishComment">
-        update dishComments set dishId = #{dishId},userId = #{userId},rate = #{rate},comment = #{comment},time = #{time} where id = #{id}
+        update dishComments
+        <set>
+            <if test="dishId!=null">dishId = #{dishId},</if>
+            <if test="userId!=null">userId = #{userId},</if>
+            <if test="rate!=null">rate = #{rate},</if>
+            <if test="comment!=null">comment = #{comment},</if>
+            <if test="time!=null">time = #{time}</if>
+        </set>
+        where id = #{id}
     </update>
 
 </mapper>

@@ -3,6 +3,7 @@ package com.example.dish.interceptor;
 import com.example.dish.common.Result;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.apache.shiro.authc.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.stream.Collectors;
 
+/**
+ * 全局异常处理器
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -36,5 +40,12 @@ public class GlobalExceptionHandler {
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining(";")));
     }
-
+    @ExceptionHandler(AuthenticationException.class)
+    public Result<String> handleAuthenticationException(AuthenticationException e){
+        return Result.error("用户名或密码错误");
+    }
+    @ExceptionHandler(Exception.class)
+    public Result<String> handleException(Exception e){
+        return Result.error(e.getMessage());
+    }
 }

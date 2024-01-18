@@ -123,10 +123,6 @@ public class DishServiceImpl implements DishService {
         dishComments.forEach(dishComment ->{
                 dishComment.setUser(
                         userService.getUserById(dishComment.getUserId()));
-                if(dishComment.getTime()!=null)
-                    dishComment.setFormattedTime(
-                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                                .format(dishComment.getTime()));
         });
         return dishComments;
     }

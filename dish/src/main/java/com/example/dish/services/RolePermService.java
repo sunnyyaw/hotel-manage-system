@@ -6,7 +6,7 @@ import com.example.dish.mapper.RoleMapper;
 
 import java.util.List;
 
-public interface RoleService extends RoleMapper, PermissionMapper {
+public interface RolePermService extends RoleMapper, PermissionMapper {
     List<Role> getAllRoleInfo();
     void saveRole(Role role)throws Exception;
     void deleteRole(Long id)throws Exception;
@@ -26,7 +26,8 @@ public interface RoleService extends RoleMapper, PermissionMapper {
     void savePermission(Permission permission)throws Exception;
     void addAllRole_Permission(Permission permission);
     void deletePermission(Long id)throws Exception;
-    boolean existsByURL(Long id, String url);
+    boolean matchesByURL(Long id, String url);
+    boolean matchesByURL(String url);
     boolean existsByPermissionId(Long id);
     boolean anyMatchesURL(String url);
     void deleteRole_PermissionsByPermission(Long id);

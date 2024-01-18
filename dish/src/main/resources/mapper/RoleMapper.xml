@@ -19,7 +19,11 @@
     </delete>
 
     <update id="updateRole" parameterType="com.example.dish.entity.Role">
-        update roles set roleName = #{roleName} where id = #{id}
+        update roles
+        <set>
+            <if test="roleName!=null">roleName = #{roleName}</if>
+        </set>
+        where id = #{id}
     </update>
 
 </mapper>

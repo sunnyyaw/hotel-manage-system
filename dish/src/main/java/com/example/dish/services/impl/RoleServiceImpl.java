@@ -5,7 +5,7 @@ import com.example.dish.mapper.PermissionMapper;
 import com.example.dish.mapper.RoleMapper;
 import com.example.dish.mapper.Role_PermissionMapper;
 import com.example.dish.mapper.User_RoleMapper;
-import com.example.dish.services.RoleService;
+import com.example.dish.services.RolePermService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 @Service
-public class RoleServiceImpl implements RoleService {
+public class RoleServiceImpl implements RolePermService {
     @Autowired
     private RoleMapper roleMapper;
     @Autowired
@@ -162,7 +162,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void savePermission(Permission permission) throws Exception {
-        if(this.existsByURL(permission.getId(),permission.getUrl()))
+        if(this.matchesByURL(permission.getId(),permission.getUrl()))
             throw new Exception("url已存在");
         if(!this.existsByPermissionId(permission.getId())){
             this.addPermission(permission);
@@ -219,10 +219,16 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public boolean existsByURL(Long id, String url) {
+    public boolean matchesByURL(Long id, String url) {
         return this.getAllPermissions().stream()
                 .anyMatch(perm-> !Objects.equals(perm.getId(),id)
-                        && Objects.equals(perm.getUrl(),url.trim()));
+                        && Objects.equals(perm.getUrl(),url));
+    }
+
+    @Override
+    public boolean matchesByURL(String url) {
+        return this.getAllPermissions().stream()
+                .anyMatch(perm-> Pattern.matches(perm.getUrl(),url));
     }
 
     @Override

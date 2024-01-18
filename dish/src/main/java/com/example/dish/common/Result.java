@@ -23,7 +23,13 @@ public class Result<T> {
     public static <T>Result<T> success(String message,T data){
         return new Result<>(200,message,data);
     }
+    public static <T>Result<T> success(String message){
+        return new Result<>(200,message,null);
+    }
     public static <T>Result<T> error(String message,T data){
         return new Result<>(400,message,data);
+    }
+    public static <T>Result<T> error(String message){
+        return new Result<>(400,message,null);
     }
 }

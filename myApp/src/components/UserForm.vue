@@ -31,13 +31,23 @@ export default {
   data () {
     return {
       dialogVisible: false,
-      userForm: '',
+      userForm: {
+        username: '',
+        password: '',
+        roles: [],
+        phone: ''
+      },
       roles: ''
     }
   },
   methods: {
     clear () {
-      this.userForm = ''
+      this.userForm = {
+        username: '',
+        password: '',
+        roles: [],
+        phone: ''
+      }
       this.dialogVisible = false
       this.roles = ''
     },
@@ -64,10 +74,10 @@ export default {
               message: resp.data.message
             })
           }
-        }).catch(failResponse => {
+        }).catch(error => {
           this.$message({
             type: 'error',
-            message: '出错'
+            message: `系统接口${error.response.status}错误`
           })
         })
     },
@@ -88,10 +98,10 @@ export default {
               message: resp.data.message
             })
           }
-        }).catch(failResponse => {
+        }).catch(error => {
           this.$message({
             type: 'error',
-            message: '出错'
+            message: `系统接口${error.response.status}错误`
           })
         })
     }
