@@ -1,5 +1,6 @@
 package com.example.dish.services.impl;
 
+import com.example.dish.common.Query;
 import com.example.dish.entity.*;
 import com.example.dish.mapper.*;
 import com.example.dish.services.Bill_DishService;
@@ -7,11 +8,9 @@ import com.example.dish.services.DishService;
 import com.example.dish.services.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,6 +26,17 @@ public class DishServiceImpl implements DishService {
     private DishCommentMapper dishCommentMapper;
     @Autowired
     private UserService userService;
+
+    @Override
+    public List<Dish> listDishes(Query query) {
+        return dishMapper.listDishes(query);
+    }
+
+    @Override
+    public int count(Query query) {
+        return dishMapper.count(query);
+    }
+
     @Override
     public List<Dish> getAllDishes(){
         return dishMapper.getAllDishes().stream().peek(dish->{
@@ -82,19 +92,6 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
-    public List<Dish> getDishesByKeyword(String keyword)  {
-        if(Objects.isNull(keyword) || keyword.isEmpty())
-            return this.getAllDishes();
-        return dishMapper.getDishesByKeyword(keyword).stream().peek(dish->{
-            dish.setCategory(categoryMapper.getCategoryById(dish.getCategoryId()));
-            double score = dishCommentMapper.getAllDishComments().stream()
-                    .filter(dishComment -> Objects.equals(dishComment.getDishId(),dish.getId()))
-                    .mapToInt(DishComment::getRate).summaryStatistics().getAverage();
-            dish.setAverageScore(String.format("%.2f",score));
-        }).toList();
-    }
-
-    @Override
     public List<Dish> getDishesByCategoryId(Long categoryId)  {
         return this.getAllDishes().stream().filter(dish->
             Objects.equals(dish.getCategoryId(),categoryId)).toList();
@@ -116,14 +113,12 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
-    public List<DishComment> getDishCommentsByDishId(Long dishId) {
+    public List<DishComment> getDishCommentsByDishId(Long dishId){
         List<DishComment> dishComments =
                 this.getAllDishComments().stream().filter(dishComment ->
                 Objects.equals(dishId,dishComment.getDishId())).toList();
-        dishComments.forEach(dishComment ->{
-                dishComment.setUser(
-                        userService.getUserById(dishComment.getUserId()));
-        });
+        dishComments.forEach(dishComment ->
+            dishComment.setUser(userService.getUserById(dishComment.getUserId())));
         return dishComments;
     }
 

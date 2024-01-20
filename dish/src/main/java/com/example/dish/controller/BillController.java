@@ -25,54 +25,51 @@ public class BillController {
     private BillService billService;
     @Autowired
     private Bill_DishService billDishService;
-    @RequestMapping("/index")
-    public String hello(){
-        return "你好";
-    }
 
     /**
      * 获取账单信息
      */
-    @RequestMapping(value = "/bills",method = RequestMethod.GET)
-    public PageUtils listBills(@RequestParam Map<String,Object> params){
+    @GetMapping("/bills")
+    public PageUtils listBills(@RequestParam Map<String,Object> params)throws Exception{
         Query query = new Query(params);
         List<EntityModel<Bill>> bills = billModelAssembler.toModel(billService.listBills(query));
         int count = billService.count(query);
         return new PageUtils(bills,count,query.getPageSize());
     }
-    @RequestMapping(value = "/customers/{id}/bills",method = RequestMethod.GET)
+    @GetMapping(value = "/customers/{id}/bills")
     public List<EntityModel<Bill>> getBillsByCustomerId(@PathVariable("id") Long customerId){
         return billModelAssembler.toModel(billService.getBillsByCustomerId(customerId));
     }
-    @RequestMapping(value = "/users/{id}/bills",method = RequestMethod.GET)
+    @GetMapping("/users/{id}/bills")
     public List<EntityModel<Bill>> getBillsByUserId(@PathVariable("id") Long userId){
         return billModelAssembler.toModel(billService.getBillsByUserId(userId));
     }
-    @RequestMapping(value = "/userBills",method = RequestMethod.GET)
+    @GetMapping("/userBills")
     public List<EntityModel<Bill>> getUserBills(){
         return billModelAssembler.toModel(billService.getUserBills());
     }
-    @RequestMapping(value = "/bills/{id}",method = RequestMethod.GET)
+    @GetMapping("/bills/{id}")
     public EntityModel<Bill> getBillById(@PathVariable("id") Long id){
         return billModelAssembler.toModel(billService.getBillById(id));
     }
-    @RequestMapping(value = "/bills",method = RequestMethod.POST)
+    @PostMapping("/bills")
     public void addBill(@RequestBody Bill bill){
         billService.saveBill(bill);
     }
-    @RequestMapping(value="/bills/{id}/complete",method = RequestMethod.POST)
+    @PostMapping("/bills/{id}/complete")
     public Result<String> completeBill(@PathVariable("id") Long id) throws Exception {
         billService.completeBill(id);
         return Result.success("结算成功");
     }
-    @RequestMapping(value="/bills/{id}/cancel",method = RequestMethod.POST)
+    @PostMapping("/bills/{id}/cancel")
     public Result<String> cancelBill(@PathVariable("id") Long id) throws Exception {
         billService.cancelBill(id);
         return Result.success("撤销成功");
     }
-    @RequestMapping(value = "/bills/{id}",method = RequestMethod.DELETE)
-    public void deleteBill(@PathVariable Long id){
+    @DeleteMapping("/bills/{id}")
+    public Result<String> deleteBill(@PathVariable Long id) throws Exception {
         billService.deleteBillById(id);
+        return Result.success("删除成功");
     }
     @RequestMapping(value = "/bills_dishes",method = RequestMethod.GET)
     public List<Bill_Dish> getAllBill_Dish(){

@@ -1,23 +1,73 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.dish.mapper.CategoryMapper">
-
-    <select id="getCategoriesByKeyword" parameterType="java.lang.String" resultType="com.example.dish.entity.Category">
-        select * from categories where name like concat('%',#{name},'%')
+    <sql id="keys">
+        <trim suffixOverrides=",">
+            <if test="name!=null">
+                name,
+            </if>
+            <if test="type!=null">
+                type,
+            </if>
+            <if test="sort!=null">
+                sort,
+            </if>
+        </trim>
+    </sql>
+    <sql id="values">
+        <trim suffixOverrides=",">
+            <if test="name!=null">
+                #{name},
+            </if>
+            <if test="type!=null">
+                #{type},
+            </if>
+            <if test="sort!=null">
+                #{sort},
+            </if>
+        </trim>
+    </sql>
+    <sql id="columns">
+        id,
+        name,
+        type,
+        sort
+    </sql>
+    <select id="listCategories" parameterType="Map" resultType="com.example.dish.entity.Category">
+        select <include refid="columns"/> from categories
+        <where>
+            <if test="name!=null and name!=''">
+                name like concat('%',#{name},'%')
+            </if>
+        </where>
+        order by sort
+        <if test="current!=null and pageSize!= null">
+            offset #{current} rows fetch next #{pageSize} rows only
+        </if>
+    </select>
+    <select id="count" parameterType="Map" resultType="int">
+        select count(*) from categories
+        <where>
+            <if test="name!=null and name!=''">
+                name like concat('%',#{name},'%')
+            </if>
+        </where>
     </select>
 
     <select id="getCategoryById" parameterType="java.lang.Long" resultType="com.example.dish.entity.Category">
-        select * from categories where id = #{id}
+        select <include refid="columns"/> from categories where id = #{id}
     </select>
 
     <insert id="addCategory" parameterType="com.example.dish.entity.Category" useGeneratedKeys="true" keyProperty="id">
-        insert into categories ( name ) values ( #{name})
+        insert into categories (<include refid="keys"/> ) values (<include refid="values"/>)
     </insert>
 
     <update id="updateCategory" parameterType="com.example.dish.entity.Category">
         update categories
         <set>
-            <if test="name!=null">name = #{name}</if>
+            <if test="name!=null">name = #{name},</if>
+            <if test="type!=null">type = #{type},</if>
+            <if test="sort!=null">sort = #{sort}</if>
         </set>
         where id = #{id}
     </update>

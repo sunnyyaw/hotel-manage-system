@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
-public class RabbitmqConfiguerer {
+public class RabbitmqConfig {
     static final String queueName = "spring-boot";
     static final String exchangeName = "spring-boot-exchange";
     static final String routeKey = "queue1";

@@ -1,28 +1,83 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.dish.mapper.BillMapper">
-
+    <sql id="keys">
+        <trim suffixOverrides=",">
+            <if test="customerId!=null">
+                customerId,
+            </if>
+            <if test="genTime!=null">
+                genTime,
+            </if>
+            <if test="userId!=null">
+                userId,
+            </if>
+            <if test="status!=null">
+                status,
+            </if>
+        </trim>
+    </sql>
+    <sql id="values">
+        <trim suffixOverrides=",">
+            <if test="customerId!=null">
+                #{customerId},
+            </if>
+            <if test="genTime!=null">
+                #{genTime},
+            </if>
+            <if test="userId!=null">
+                #{userId},
+            </if>
+            <if test="status!=null">
+                #{status},
+            </if>
+        </trim>
+    </sql>
+    <sql id="columns">
+        id,
+        customerId,
+        genTime,
+        userId,
+        status
+    </sql>
     <select id="getAllBills" resultType="com.example.dish.entity.Bill">
-        select * from bills
+        select <include refid="columns"/> from bills
     </select>
 
     <select id="count" parameterType="Map" resultType="int">
         select count(*) from bills
+        <where>
+            <if test="userId!=null and userId!=''">
+                userId = #{userId}
+            </if>
+            <if test="customerId!=null and customerId!=''">
+                and customerId = #{customerId}
+            </if>
+        </where>
     </select>
 
     <select id="listBills" parameterType="Map" resultType="com.example.dish.entity.Bill">
-        select * from bills order by id
+        select <include refid="columns"/> from bills
+        <where>
+            <if test="userId!=null and userId!=''">
+                userId = #{userId}
+            </if>
+            <if test="customerId!=null and customerId!=''">
+                and customerId = #{customerId}
+            </if>
+        </where>
+        order by id
         <if test="current!=null and pageSize!=null">
             offset #{current} rows fetch next #{pageSize} rows only
         </if>
     </select>
 
     <select id="getBillById" parameterType="java.lang.Long" resultType="com.example.dish.entity.Bill">
-        select * from bills where id = #{id}
+        select <include refid="columns"/> from bills where id = #{id}
     </select>
 
     <insert id="addBill" parameterType="com.example.dish.entity.Bill" useGeneratedKeys="true" keyProperty="id">
-        insert into bills ( customerId,userId, genTime,status ) values ( #{customerId},#{userId}, #{genTime},#{status})
+        insert into bills ( <include refid="keys"/>) values (<include refid="values"/>)
     </insert>
 
     <update id="updateBill" parameterType="com.example.dish.entity.Bill">

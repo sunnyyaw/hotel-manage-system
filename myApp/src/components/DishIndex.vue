@@ -16,8 +16,10 @@ export default {
   name: 'DishIndex',
   components: {SideMenu, Dishes},
   methods: {
-    listByCategory () {
-      this.$refs.dishesArea.cid = this.$refs.sideMenu.cid
+    listByCategory (index) {
+      this.$refs.dishesArea.cid = index
+      this.$refs.dishesArea.currentPage = 1
+      this.$refs.dishesArea.loadDishes()
     }
   }
 }

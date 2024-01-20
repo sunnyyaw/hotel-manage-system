@@ -1,6 +1,6 @@
 package com.example.dish.entity;
 
-import com.example.dish.common.Status;
+import com.example.dish.common.BillStatus;
 import lombok.Data;
 
 import java.sql.Timestamp;
@@ -13,8 +13,9 @@ public class Bill {
     private Long customerId;
     private Long userId;
     private Timestamp genTime;
+    private Integer status;
+
     private List<Bill_Dish> orders;
     private Customer customer;
     private User user;
-    private Status status;
 }

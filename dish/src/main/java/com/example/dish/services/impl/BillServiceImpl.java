@@ -1,7 +1,7 @@
 package com.example.dish.services.impl;
 
 import com.example.dish.common.Query;
-import com.example.dish.common.Status;
+import com.example.dish.common.BillStatus;
 import com.example.dish.entity.Bill;
 import com.example.dish.entity.Bill_Dish;
 import com.example.dish.mapper.BillMapper;
@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class BillServiceImpl implements BillService {
@@ -36,7 +35,7 @@ public class BillServiceImpl implements BillService {
 
 
     @Override
-    public List<Bill> listBills(Query query) {
+    public List<Bill> listBills(Query query){
         return billMapper.listBills(query).stream().peek(bill->{
             bill.setUser(userService.getUserById(bill.getUserId()));
             bill.setCustomer(customerMapper.getCustomerById(bill.getCustomerId()));
@@ -78,7 +77,7 @@ public class BillServiceImpl implements BillService {
     public void saveBill(Bill bill) {
         String username = SecurityUtils.getSubject().getPrincipal().toString();
         Long userId = userService.getUserByUsername(username).getId();
-        bill.setStatus(Status.未结算);
+        bill.setStatus(BillStatus.IN_PROCESS.ordinal());
         bill.setUserId(userId);
         bill.setGenTime(new Timestamp(System.currentTimeMillis()));
         billMapper.addBill(bill);
@@ -96,9 +95,9 @@ public class BillServiceImpl implements BillService {
         Bill bill = this.getBillById(id);
         if(Objects.isNull(bill))
             throw new Exception("账单不存在");
-        if(bill.getStatus()!=null && bill.getStatus()!=Status.未结算)
-            throw new Exception("账单不能在"+bill.getStatus()+"状态下结算");
-        bill.setStatus(Status.已结算);
+        if(bill.getStatus()!=null && bill.getStatus()!= BillStatus.IN_PROCESS.ordinal())
+            throw new Exception("账单不能在已结算状态下结算");
+        bill.setStatus(BillStatus.COMPLETED.ordinal());
         billMapper.updateBill(bill);
     }
 
@@ -107,15 +106,15 @@ public class BillServiceImpl implements BillService {
         Bill bill = this.getBillById(id);
         if(Objects.isNull(bill))
             throw new Exception("账单不存在");
-        if(bill.getStatus()!=null && bill.getStatus()!=Status.未结算)
-            throw new Exception("账单不能在"+bill.getStatus()+"状态下撤销");
-        bill.setStatus(Status.已撤销);
+        if(bill.getStatus()!=null && bill.getStatus()!= BillStatus.IN_PROCESS.ordinal())
+            throw new Exception("账单不能在已撤销状态下撤销");
+        bill.setStatus(BillStatus.CANCELED.ordinal());
         billMapper.updateBill(bill);
     }
 
     @Override
     @Transactional
-    public void deleteBillById(Long id) {
+    public void deleteBillById(Long id) throws Exception{
         billDishService.deleteBill_DishByBillId(id);
         billMapper.deleteBillById(id);
     }

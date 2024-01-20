@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
     public User getUserInfo() throws UserNotFoundException {
         Subject subject = SecurityUtils.getSubject();
         String username = subject.getPrincipal().toString();
-        User user = this.getUserByUsername(username);
+        User user = userMapper.getUserByUsername(username);
         if(Objects.isNull(user)){
             throw new UserNotFoundException();
         }
@@ -60,12 +60,12 @@ public class UserServiceImpl implements UserService {
             throw new Exception("用户名已存在");
         if(!this.existsById(userDTO.getId())){
             this.encodePassword(userDTO);
-            this.addUser(userDTO);
+            userMapper.addUser(userDTO);
         }
         else{
             if(userDTO.getNeedEncode())
                 this.encodePassword(userDTO);
-            this.updateUser(userDTO);
+            userMapper.updateUser(userDTO);
         }
         this.updateUser_RolesByUser(userDTO);
     }
@@ -87,14 +87,14 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void phoneLogin(UserDTO userDTO) throws Exception {
         String phone = userDTO.getPhone();
-        User user = this.getUserByUsername(phone);
+        User user = userMapper.getUserByUsername(phone);
         if(user == null){
             user = new User();
             user.setUsername(phone);
             user.setPassword(phone);
             user.setPhone(phone);
             this.encodePassword(user);
-            this.addUser(user);
+            userMapper.addUser(user);
         }
         Subject subject = SecurityUtils.getSubject();
         UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken(user.getPhone(),user.getPhone());
@@ -123,7 +123,7 @@ public class UserServiceImpl implements UserService {
         }
         user.setUsername(username);
         this.encodePassword(user);
-        this.addUser(user);
+        userMapper.addUser(user);
         user.setPassword(password);
         this.login(user);
     }
@@ -131,14 +131,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(Long id)throws Exception {
-        User user = this.getUserById(id);
+        User user = userMapper.getUserById(id);
         String username = SecurityUtils.getSubject().getPrincipal().toString();
         if(Objects.isNull(user))
             throw new UserNotFoundException();
         if(Objects.equals(username,user.getUsername()))
             throw new Exception("不能删除自己");
         this.deleteUser_RolesByUser(id);
-        this.deleteUser(user);
+        userMapper.deleteUser(user);
     }
 
     @Override
@@ -173,13 +173,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean existsByUsername(Long id, String username) {
-        return this.getAllUsers().stream()
+        return userMapper.getAllUsers().stream()
                 .anyMatch(u->!Objects.equals(u.getId(),id)&&
                         Objects.equals(u.getUsername(),username));
     }
     @Override
     public boolean existsById(Long id) {
-        return !Objects.isNull(this.getUserById(id));
+        return !Objects.isNull(userMapper.getUserById(id));
     }
 
     @Override
@@ -189,29 +189,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser_RolesByUser(UserDTO userDTO) {
-        Long userId = userDTO.getId();
-        List<Role> newRoles = userDTO.getRoles();
-        List<User_Role> user_roles = this.getUser_RolesByUser(userDTO);
-        user_roles.forEach(user_role -> {
-            if(newRoles.stream()
-                    .noneMatch(newRole-> Objects.equals(newRole.getId(),user_role.getRoleId())))
-                user_roleMapper.deleteUser_Role(user_role);
-        });
+    public void updateUser_RolesByUser(User user) {
+        Long userId = user.getId();
+        List<Role> newRoles = user.getRoles();
+        List<User_Role> user_roles = this.getUser_RolesByUser(user);
+        user_roles.forEach(user_role ->
+            user_roleMapper.deleteUser_Role(user_role));
         newRoles.forEach(newRole->{
-            if(user_roles.stream()
-                    .noneMatch(user_role -> Objects.equals(newRole.getId(),user_role.getRoleId()))){
-                User_Role user_role = new User_Role();
-                user_role.setUserId(userId);
-                user_role.setRoleId(newRole.getId());
-                user_roleMapper.addUser_Role(user_role);
-            }
+            User_Role user_role = new User_Role();
+            user_role.setUserId(userId);
+            user_role.setRoleId(newRole.getId());
+            user_roleMapper.addUser_Role(user_role);
         });
     }
 
     @Override
     public void encodePassword(User userDTO) throws Exception{
-        User user= this.getUserByUsername(userDTO.getUsername());
+        User user= userMapper.getUserByUsername(userDTO.getUsername());
         if(!Objects.isNull(user)&&
                 PasswordUtils.encodePassword(userDTO.getPassword(),user.getSalt()).equals(user.getPassword())){
             throw new PasswordCollideException();
@@ -222,13 +216,23 @@ public class UserServiceImpl implements UserService {
         userDTO.setPassword(encodedPassword);
     }
 
-    public List<User> getAllUsers() {
+    @Override
+    public List<User> getAllUsers(){
         return userMapper.getAllUsers();
     }
-
     @Override
     public int count(Query query) {
         return userMapper.count(query);
+    }
+
+    @Override
+    public User get(Long id)throws Exception {
+        User user = userMapper.getUserById(id);
+        if(Objects.isNull(user))
+            throw new Exception("用户不存在");
+        List<Role> roles = this.getRolesByUser(user);
+        user.setRoles(roles);
+        return user;
     }
 
     @Override
@@ -242,19 +246,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByPhone(String phone) {
-        return userMapper.getUserByPhone(phone);
-    }
-
-    @Override
     public void addUser(User user) {
         userMapper.addUser(user);
     }
 
-    @Override
-    public void deleteUser(User user) {
-        userMapper.deleteUser(user);
-    }
 
     @Override
     public void deleteUsers(List<Long> ids) {
@@ -262,7 +257,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(User user) {
+    @Transactional
+    public void updateUser(User user)throws Exception {
+        if(!this.existsById(user.getId()))
+            throw new Exception("用户不存在");
+        if(this.existsByUsername(user.getId(),user.getUsername()))
+            throw new Exception("用户名已存在");
+        if(user.getNeedEncode())
+            this.encodePassword(user);
         userMapper.updateUser(user);
+        this.updateUser_RolesByUser(user);
     }
 }

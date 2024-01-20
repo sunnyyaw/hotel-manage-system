@@ -18,9 +18,9 @@ public class User implements Serializable {
     private String password;
     private String salt;
     private String phone;
+    private Integer status;
 
     private String verifyCode;
-    private List<Permission> permissions;
     private List<Role> roles;
     private Boolean rememberMe = Boolean.FALSE;
     private Boolean needEncode = Boolean.FALSE;

@@ -1,5 +1,6 @@
 package com.example.dish.realm;
 
+import com.example.dish.common.UserStatus;
 import com.example.dish.entity.Permission;
 import com.example.dish.entity.Role;
 import com.example.dish.entity.User;
@@ -27,11 +28,14 @@ public class UserPasswordRealm extends AuthorizingRealm {
     }
 
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) {
         String username = authenticationToken.getPrincipal().toString();
         User user = userService.getUserByUsername(username);
         if(Objects.isNull(user)){
             throw new AuthenticationException("用户不存在");
+        }
+        if(user.getStatus()== UserStatus.BANNED.ordinal()){
+            throw new AuthenticationException("您的账号已被管理员禁用");
         }
         String password = user.getPassword();
         String salt = user.getSalt();

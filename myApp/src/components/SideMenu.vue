@@ -1,47 +1,40 @@
 <template>
     <el-menu
         class="categories"
-        default-active="0"
+        default-active=""
         @select="handleSelect"
         active-text-color="red">
-    <el-menu-item v-for="item in navList" :key="item.id" :index="item.id+''">
+    <el-menu-item v-for="item in navList" :key="item.id" :index="item.id">
       <i class="el-icon-menu"></i>
       {{ item.name }}
-      <i v-if="item.id>0" class="el-icon-edit" @click="editCategory(item)"></i>
-      <i v-if="item.id>0" class="el-icon-delete" @click="deleteCategory(item.id)"></i>
     </el-menu-item>
-    <edit-category @onSubmit="loadCategories()" ref="edit"></edit-category>
     </el-menu>
 </template>
 <script>
-import EditCategory from './EditCategory'
 export default {
   name: 'SideMenu',
-  components: {EditCategory},
   data () {
     return {
       navList: [
-        {id: 0, name: '全部'}
-      ],
-      cid: 0
+        {id: '', name: '全部'}
+      ]
     }
   },
-  mounted: function () {
+  created () {
     this.loadCategories()
   },
   methods: {
     loadCategories () {
-      this.navList = [{id: 0, name: '全部'}]
+      this.navList = [{id: '', name: '全部'}]
       this.$axios.get('/categories')
         .then(resp => {
           if (resp && resp.status === 200) {
-            this.navList = this.navList.concat(resp.data)
+            this.navList = this.navList.concat(resp.data.data)
           }
         })
     },
     handleSelect (index) {
-      this.cid = Number(index)
-      this.$emit('indexSelect')
+      this.$emit('indexSelect', index)
     },
     editCategory (item) {
       this.$refs.edit.dialogFormVisible = true

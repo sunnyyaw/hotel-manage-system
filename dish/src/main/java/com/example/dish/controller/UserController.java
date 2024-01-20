@@ -20,15 +20,19 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private UserService userService;
-    @RequestMapping(value="/users",method = RequestMethod.GET)
+    @GetMapping("/users")
     public PageUtils listUsers(@RequestParam Map<String,Object> params){
         Query query = new Query(params);
         List<User> users = userService.listUsers(query);
         int count = userService.count(query);
         return new PageUtils(users,count,query.getPageSize());
     }
+    @GetMapping("/users/{id}")
+    public Result<User> getUserById(@PathVariable Long id)throws Exception{
+        return Result.success("查询成功",userService.get(id));
+    }
 
-    @RequestMapping(value="/userInfo",method = RequestMethod.GET)
+    @GetMapping(value="/userInfo")
     public Result<User> getUserInfo()throws Exception{
         User user = userService.getUserInfo();
         return Result.success("查找成功",user);
@@ -37,6 +41,11 @@ public class UserController {
     public Result<String> saveUser(@Valid @RequestBody UserDTO userDTO) throws Exception {
         userService.saveUser(userDTO);
         return Result.success("保存成功");
+    }
+    @PutMapping(value="/users")
+    public Result<String> updateUser(@RequestBody User user)throws Exception {
+        userService.updateUser(user);
+        return Result.success("修改成功");
     }
     @RequestMapping(value="/userInfo",method = RequestMethod.POST)
     public Result<User> saveInfo(@Valid @RequestBody UserDTO userDTO) throws Exception {

@@ -1,6 +1,6 @@
 package com.example.dish.utils;
 
-import com.example.dish.common.Status;
+import com.example.dish.common.BillStatus;
 import com.example.dish.controller.BillController;
 import com.example.dish.entity.Bill;
 import jakarta.validation.constraints.NotNull;
@@ -17,12 +17,17 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class BillModelAssembler implements RepresentationModelAssembler<Bill, EntityModel<Bill>> {
 
     @Override
-    public @NotNull EntityModel<Bill> toModel(@NotNull Bill bill) {
-        EntityModel<Bill> billModel = EntityModel.of(bill,
-                linkTo(methodOn(BillController.class).getBillById(bill.getId())).withSelfRel(),
-                linkTo(methodOn(BillController.class).listBills(new HashMap<>())).withRel("all")
-        );
-        if(bill.getStatus()==null || bill.getStatus()== Status.未结算) {
+    public @NotNull EntityModel<Bill> toModel(@NotNull Bill bill){
+        EntityModel<Bill> billModel = null;
+        try {
+            billModel = EntityModel.of(bill,
+                    linkTo(methodOn(BillController.class).getBillById(bill.getId())).withSelfRel(),
+                    linkTo(methodOn(BillController.class).listBills(new HashMap<>())).withRel("all")
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        if(bill.getStatus()==null || bill.getStatus()== BillStatus.IN_PROCESS.ordinal()) {
             try {
                 billModel.add(
                         linkTo(methodOn(BillController.class).completeBill(bill.getId())).withRel("complete"),

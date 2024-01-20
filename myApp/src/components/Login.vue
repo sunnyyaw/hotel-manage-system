@@ -16,8 +16,10 @@
             :src="imgSrc" fit="fill" @click="refreshVerifyCode">
         </el-form-item>
         <el-form-item style="width:100%">
-            <el-button type="primary" v-on:click="login" v-loading="loginLoading">登录</el-button>
-            <el-button type="primary" v-on:click="register" v-loading="registerLoading">注册</el-button>
+            <el-button type="primary" v-on:click="login"
+             v-loading="loginLoading" element-loading-spinner="el-icon-loading">登录</el-button>
+            <el-button type="primary" v-on:click="register"
+             v-loading="registerLoading" element-loading-spinner="el-icon-loading">注册</el-button>
             <el-checkbox v-model="loginForm.rememberMe">记住我</el-checkbox>
             <el-link type="primary" href="http://localhost:8080/phoneLogin">验证码登录</el-link>
         </el-form-item>

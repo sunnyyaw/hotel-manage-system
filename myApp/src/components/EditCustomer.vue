@@ -1,6 +1,5 @@
 <template>
   <div>
-    <el-button type="primary" @click="dialogFormVisible = true">添加餐桌</el-button>
     <el-dialog
       title="添加/修改餐桌"
       :visible.sync="dialogFormVisible"
@@ -37,10 +36,7 @@ export default {
       }
     },
     onSubmit () {
-      this.$axios.post('/customers', {
-        id: this.form.id,
-        description: this.form.description
-      }).then(resp => {
+      this.$axios.post('/customers', this.form).then(resp => {
         if (resp && resp.status === 200) {
           this.$message({
             type: 'success',

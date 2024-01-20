@@ -1,25 +1,98 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.dish.mapper.DishMapper">
+    <sql id="keys">
+        <trim suffixOverrides=",">
+            <if test="dishName!=null">
+                dishName,
+            </if>
+            <if test="description!=null">
+                description,
+            </if>
+            <if test="unitPrice!=null">
+                unitPrice,
+            </if>
+            <if test="categoryId!=null">
+                categoryId,
+            </if>
+            <if test="cover!=null">
+                cover,
+            </if>
+        </trim>
+    </sql>
+    <sql id="values">
+        <trim suffixOverrides=",">
+            <if test="dishName!=null">
+                #{dishName},
+            </if>
+            <if test="description!=null">
+                #{description},
+            </if>
+            <if test="unitPrice!=null">
+                #{unitPrice},
+            </if>
+            <if test="categoryId!=null">
+                #{categoryId},
+            </if>
+            <if test="cover!=null">
+                #{cover},
+            </if>
+        </trim>
+    </sql>
+    <sql id="columns">
+        id,
+        dishName,
+        description,
+        unitPrice,
+        categoryId,
+        cover
+    </sql>
+    <select id="listDishes" parameterType="Map" resultType="com.example.dish.entity.Dish">
+        select <include refid="columns"/> from dishes
+        <where>
+            <if test="dishName!=null and dishName!=''">
+                dishName like concat('%',#{dishName},'%')
+            </if>
+            <if test="categoryId!=null and categoryId!=''">
+                and categoryId = #{categoryId}
+            </if>
+        </where>
+        order by id
+        <if test="current!=null and pageSize!= null">
+            offset #{current} rows fetch next #{pageSize} rows only
+        </if>
+    </select>
+
+    <select id="count" parameterType="Map" resultType="int">
+        select count(*) from dishes
+        <where>
+            <if test="dishName!=null and dishName!=''">
+                dishName like concat('%',#{dishName},'%')
+            </if>
+            <if test="categoryId!=null and categoryId!=''">
+                and categoryId = #{categoryId}
+            </if>
+        </where>
+    </select>
 
     <select id="getDishById" parameterType="java.lang.Long" resultType="com.example.dish.entity.Dish">
-        select * from dishes where id = #{id}
+        select <include refid="columns"/> from dishes where id = #{id}
     </select>
 
     <select id="getDishesByCategoryId" parameterType="java.lang.Long" resultType="com.example.dish.entity.Dish">
-        select * from dishes where categoryId = #{categoryId}
+        select <include refid="columns"/> from dishes where categoryId = #{categoryId}
     </select>
 
     <select id="getAllDishes" resultType="com.example.dish.entity.Dish">
-        select * from dishes
+        select <include refid="columns"/> from dishes
     </select>
 
     <select id="getDishesByKeyword" parameterType="java.lang.String" resultType="com.example.dish.entity.Dish">
-        select * from dishes where dishName like concat('%',#{keyword},'%') or description like concat('%',#{keyword},'%')
+        select <include refid="columns"/> from dishes where dishName like concat('%',#{keyword},'%') or description like concat('%',#{keyword},'%')
     </select>
 
     <insert id="addDish" parameterType="com.example.dish.entity.Dish" useGeneratedKeys="true" keyProperty="id">
-        insert into dishes ( dishName, description, unitPrice,categoryId,cover ) values ( #{dishName}, #{description}, #{unitPrice},#{categoryId},#{cover} )
+        insert into dishes (<include refid="keys"/>) values (<include refid="values"/>)
     </insert>
 
     <delete id="deleteDishById" parameterType="java.lang.Long">

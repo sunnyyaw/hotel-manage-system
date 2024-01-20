@@ -15,7 +15,6 @@ public interface DishService extends DishMapper, DishCommentMapper {
     Dish getDishById(Long id) ;
     List<Dish> getDishesByBillId(Long billId) ;
     BillDetailDTO getDetailsByBillId(Long billId);
-    List<Dish> getDishesByKeyword(String keyword)  ;
     List<Dish> getDishesByCategoryId(Long categoryId)  ;
     List<DishDetailDTO> getAllDishDetails()  ;
     List<DishComment> getDishCommentsByDishId(Long dishId);

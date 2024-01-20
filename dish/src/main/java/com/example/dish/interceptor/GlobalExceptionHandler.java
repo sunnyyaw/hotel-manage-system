@@ -4,6 +4,7 @@ import com.example.dish.common.Result;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -40,9 +41,9 @@ public class GlobalExceptionHandler {
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining(";")));
     }
-    @ExceptionHandler(AuthenticationException.class)
-    public Result<String> handleAuthenticationException(AuthenticationException e){
-        return Result.error("用户名或密码错误");
+    @ExceptionHandler(IncorrectCredentialsException.class)
+    public Result<String> handleIncorrectCredentialsException(IncorrectCredentialsException e){
+        return Result.error("账号或密码不正确");
     }
     @ExceptionHandler(Exception.class)
     public Result<String> handleException(Exception e){

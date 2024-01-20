@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.UUID;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -90,6 +91,13 @@ public class DishApplicationTest {
 						.session((MockHttpSession) session))
 				.andExpect(MockMvcResultMatchers.status().isOk());
 		System.out.println(result.getResponse().getContentAsString());
+	}
+	@Test
+	public void getFileString(){
+		String originalName = "abc.jpeg";
+		String suffix = originalName.substring(originalName.lastIndexOf("."));
+		String fileName = UUID.randomUUID().toString().replace("-","") + suffix;
+		assert ".jpeg".equals(suffix);
 	}
 	@Test
 	public void listBills() throws Exception {

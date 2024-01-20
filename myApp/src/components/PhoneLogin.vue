@@ -11,7 +11,8 @@
             <el-button type="primary" v-on:click="getVerifyCode">获取验证码</el-button>
         </el-form-item>
         <el-form-item style="width:100%">
-            <el-button type="primary" v-on:click="login" v-loading="loginLoading">注册并登录</el-button>
+            <el-button type="primary" v-on:click="login"
+            v-loading="loginLoading" element-loading-spinner="el-icon-loading">注册并登录</el-button>
             <el-checkbox v-model="loginForm.rememberMe">记住我</el-checkbox>
             <el-link type="primary" href="http://localhost:8080/login">用户名密码登录</el-link>
         </el-form-item>

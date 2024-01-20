@@ -1,9 +1,7 @@
 <template>
-  <el-dialog
-  title="创建/修改用户"
-  @open="loadRoles"
-  :visible.sync="dialogVisible"
-  :before-close="clear">
+  <div>
+  <el-page-header @back="goBack" :content="this.$route.params.userId==null?'添加用户':'修改用户'">
+  </el-page-header>
     <el-form ref="form" :model="userForm">
       <el-form-item label="用户名">
         <el-input v-model="userForm.username"></el-input>
@@ -18,19 +16,24 @@
       <el-form-item label="手机号">
         <el-input v-model="userForm.phone"></el-input>
       </el-form-item>
+      <el-form-item label="状态">
+        <el-radio-group v-model="userForm.status">
+          <el-radio :label="0">禁用</el-radio>
+          <el-radio :label="1">启用</el-radio>
+        </el-radio-group>
+      </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="clear" type="primary">取消</el-button>
+      <el-button @click="goBack" type="primary">取消</el-button>
       <el-button @click="onSubmit" type="primary">确定</el-button>
     </div>
-  </el-dialog>
+  </div>
 </template>
 <script>
 export default {
   name: 'UserForm',
   data () {
     return {
-      dialogVisible: false,
       userForm: {
         username: '',
         password: '',
@@ -40,21 +43,41 @@ export default {
       roles: ''
     }
   },
+  created () {
+    this.init()
+  },
   methods: {
-    clear () {
-      this.userForm = {
-        username: '',
-        password: '',
-        roles: [],
-        phone: ''
-      }
-      this.dialogVisible = false
-      this.roles = ''
+    goBack () {
+      this.$router.replace('/users')
     },
     handlePasswordChange () {
       this.userForm.needEncode = true
     },
-    loadRoles () {
+    init () {
+      if (this.$route.params.userId != null) {
+        this.getUser()
+      }
+      this.getRoles()
+    },
+    getUser () {
+      this.$axios.get(`/users/${this.$route.params.userId}`)
+        .then(resp => {
+          if (resp && resp.data.code === 200) {
+            this.userForm = resp.data.data
+          } else {
+            this.$message({
+              type: 'warning',
+              message: resp.data.message
+            })
+          }
+        }).catch(error => {
+          this.$message({
+            type: 'error',
+            message: `系统接口${error.response.status}错误`
+          })
+        })
+    },
+    getRoles () {
       this.$axios.get('/roles')
         .then(resp => {
           if (resp && resp.data.code === 200) {
@@ -90,8 +113,7 @@ export default {
               type: 'success',
               message: resp.data.message
             })
-            this.dialogVisible = false
-            this.$emit('onSubmit')
+            this.goBack()
           } else {
             this.$message({
               type: 'warning',

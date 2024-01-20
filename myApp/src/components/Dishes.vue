@@ -1,8 +1,8 @@
 <template>
   <div>
-    <el-row style="height: 840px;">
+    <el-row>
       <search-bar ref="searchBar"></search-bar>
-        <el-card v-for="item in filteredDishes.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+        <el-card v-for="item in dishes"
         :key="item.id"
         style="width: 135px;margin-bottom: 20px;height: 233px;float: left;margin-right: 15px;"
         class="dish" dishStyle="padding:10px" shadow="hover" >
@@ -11,11 +11,11 @@
         </div>
         <div class="info">
             <div class="name">
-                <router-link :to="'/dishes/' + item.id + '/comments'">{{ item.dishName }}</router-link>
+                <router-link :to="`/dishes/${item.id}/comments`">{{ item.dishName }}</router-link>
             </div>
             <i class="el-icon-edit" @click="editDish(item)"></i>
             <i class="el-icon-delete" @click="deleteDish(item.id)"></i>
-            <router-link :to="'/dishes/' + item.id + '/comments'">
+            <router-link :to="`/dishes/${item.id}/comments`">
               <i class="el-icon-chat-dot-round"></i>
             </router-link>
             <div class="price">{{ item.unitPrice }}元</div>
@@ -38,9 +38,11 @@
     <el-row>
         <el-pagination
             @current-change="handleCurrentChange"
+            @size-change="handleSizeChange"
             :current-page="currentPage"
             :page-size="pageSize"
-            :total="dishes.length">
+            :total="count"
+            layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
     </el-row>
   </div>
@@ -55,13 +57,14 @@ export default{
   data () {
     return {
       dishes: [],
-      cid: 0,
+      cid: '',
       bill: '',
       currentPage: 1,
-      pageSize: 15
+      count: 0,
+      pageSize: 10
     }
   },
-  mounted: function () {
+  created () {
     this.loadDishes()
   },
   computed: {
@@ -78,27 +81,17 @@ export default{
         sum += dish.num
       })
       return sum
-    },
-    filteredDishes: {
-      get () {
-        return this.dishes.filter(dish => this.cid === 0 || dish.categoryId === this.cid)
-          .filter(dish => this.$refs.searchBar.keyword === '' || dish.dishName.includes(this.$refs.searchBar.keyword))
-      },
-      set (val) {}
     }
   },
   methods: {
-    checkComment (dishId) {
-      this.$router.replace({path: '/dishes/' + dishId + '/comments'})
-    },
     loadDishes () {
-      this.$axios.get('/dishes').then(resp => {
+      this.$axios.get(`/dishes?currentPage=${this.currentPage}&pageSize=${this.pageSize}&categoryId=${this.cid}`).then(resp => {
         if (resp && resp.status === 200) {
-          resp.data.forEach(dish => {
+          resp.data.data.forEach(dish => {
             dish.num = 0
           })
-          this.categorizedDishes = resp.data
-          this.dishes = resp.data
+          this.dishes = resp.data.data
+          this.count = resp.data.count
         }
       })
     },
@@ -106,8 +99,14 @@ export default{
       this.$refs.edit.dialogFormVisible = true
       this.$refs.edit.dish = item
     },
-    handleCurrentChange: function (currentPage) {
+    handleCurrentChange (currentPage) {
       this.currentPage = currentPage
+      this.loadDishes()
+    },
+    handleSizeChange (size) {
+      this.pageSize = size
+      this.currentPage = 1
+      this.loadDishes()
     },
     deleteDish (id) {
       this.$confirm('此操作将永久删除此餐品，是否继续？', '提示', {
@@ -115,7 +114,7 @@ export default{
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$axios.delete('/dishes/' + id)
+        this.$axios.delete(`/dishes/${id}`)
           .then(resp => {
             if (resp && resp.status === 200) {
               this.loadDishes()

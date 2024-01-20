@@ -4,9 +4,12 @@ import AppIndex from '@/components/AppIndex'
 import DishIndex from '@/components/DishIndex'
 import DishInfo from '@/components/DishInfo'
 import CustomerIndex from '@/components/CustomerIndex'
+import Categories from '@/components/Categories'
+import CategoryUpdate from '@/components/CategoryUpdate'
 import UserIndex from '@/components/UserIndex'
 import UserInfo from '@/components/UserInfo'
 import UserBill from '@/components/UserBill'
+import UserForm from '@/components/UserForm'
 import Users from '@/components/Users'
 import Bills from '@/components/Bills'
 import Permissions from '@/components/Permissions'
@@ -59,6 +62,22 @@ export default new Router({
           }
         },
         {
+          path: '/category',
+          name: 'Categories',
+          component: Categories,
+          meta: {
+            requireAuth: true
+          }
+        },
+        {
+          path: '/categories/:categoryId/update',
+          name: 'CategoryUpdate',
+          component: CategoryUpdate,
+          meta: {
+            requireAuth: true
+          }
+        },
+        {
           path: '/customer',
           name: 'CustomerIndex',
           component: CustomerIndex,
@@ -103,6 +122,14 @@ export default new Router({
               path: '/users',
               name: 'Users',
               component: Users,
+              meta: {
+                requireAuth: true
+              }
+            },
+            {
+              path: '/users/:userId?/add',
+              name: 'UserForm',
+              component: UserForm,
               meta: {
                 requireAuth: true
               }

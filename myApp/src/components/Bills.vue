@@ -63,8 +63,10 @@
           </template>
         </el-table-column>
         <el-table-column
-            prop="status"
             label="状态">
+            <template slot-scope="props">
+              <span >{{ props.row.status === 0 ? '未结算' : props.row.status === 1 ? '已结算' : '已撤销' }}</span>
+          </template>
         </el-table-column>
         <el-table-column
         fixed="right"
@@ -139,25 +141,30 @@ export default{
         })
     },
     deleteBill (id) {
-      let path = '/bills/' + id
       this.$confirm('此操作将永久删除此账单，是否继续？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$axios.delete(path)
+        this.$axios.delete(`/bills/${id}`)
           .then(resp => {
-            if (resp && resp.status === 200) {
+            if (resp && resp.data.code === 200) {
               this.$message({
                 type: 'success',
-                message: '删除成功'
+                message: resp.data.message
               })
               this.loadBills()
+            } else {
+              this.$message({
+                type: 'warning',
+                message: resp.data.message
+              })
             }
           })
-          .catch(failresponse => {
-            this.$alert('删除失败', '提示', {
-              confirmButtonText: '确定'
+          .catch(error => {
+            this.$message({
+              type: 'error',
+              message: `系统接口${error.response.status}错误`
             })
           })
       })

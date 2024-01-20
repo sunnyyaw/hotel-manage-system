@@ -6,21 +6,19 @@
         placeholder="输入用户名搜索"
         v-model="input"
         clearable
-        @blur="loadUsers">
+        @blur="handleSearch">
         <i slot="prefix" class="el-input__icon el-icon-search"></i>
         </el-input>
       </el-col>
       <el-col :span=12>
-        <el-button @click="handleAdd" type="primary">添加用户</el-button>
+        <router-link :to="'/users/add'">
+          <el-button type="primary">添加用户</el-button>
+        </router-link>
       </el-col>
     </el-row>
     <el-table
     :data="users"
     style="width:100%;">
-      <el-table-column
-      prop="id"
-      label="用户编号">
-      </el-table-column>
       <el-table-column
       prop="username"
       label="用户名">
@@ -36,14 +34,30 @@
       label="手机号">
       </el-table-column>
       <el-table-column
+      label="状态">
+      <template slot-scope="scope">
+        <span>{{scope.row.status === 0 ? '已禁用' : '正常'}}</span>
+      </template>
+      </el-table-column>
+      <el-table-column
         fixed="right"
         label="操作"
         width="150">
         <template slot-scope="scope">
-          <el-button-group>
-            <el-button @click="handleEdit(scope.row)" size="small" type="warning" icon="el-icon-edit"></el-button>
-            <el-button @click="handleDelete(scope.row)" size="small" type="danger" icon="el-icon-delete"></el-button>
-          </el-button-group>
+          <router-link :to="`/users/${scope.row.id}/add`">
+            <el-button size="small" type="text">编辑</el-button>
+          </router-link>
+          <el-button @click="handleDelete(scope.row)" size="small" type="text">删除</el-button>
+          <el-button id="status1" v-if="scope.row.status === 0"
+          @click="handleStatus(scope.row)"
+          size="small" type="text">
+            启用
+          </el-button>
+          <el-button id="status2" v-else
+          @click="handleStatus(scope.row)"
+          size="small" type="text">
+            禁用
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -55,7 +69,6 @@
     :total="count"
     layout="total, sizes, prev, pager, next, jumper">
     </el-pagination>
-    <user-form @onSubmit="loadUsers" ref="userForm"></user-form>
   </div>
 </template>
 <script>
@@ -100,23 +113,18 @@ export default {
                 message: resp.data.message
               })
             }
-          }).catch(failResponse => {
+          }).catch(error => {
             this.$message({
               type: 'error',
-              message: '出错'
+              message: `系统接口${error.response.status}异常`
             })
           })
       }
       )
     },
-    handleAdd () {
-      this.$refs.userForm.clear()
-      this.$refs.userForm.dialogVisible = true
-    },
     loadUsers () {
       this.$axios.get(`/users?currentPage=${this.currentPage}&pageSize=${this.pageSize}&username=${this.input}`)
         .then(resp => {
-          this.currentPage = 1
           this.users = resp.data.data
           this.count = resp.data.count
         }
@@ -134,9 +142,47 @@ export default {
     handleSizeChange (pageSize) {
       this.pageSize = pageSize
       this.loadUsers()
+    },
+    handleSearch () {
+      this.currentPage = 1
+      this.loadUsers()
+    },
+    handleStatus (user) {
+      user.status = user.status === 0 ? 1 : 0
+      this.$axios.put('/users', user)
+        .then(resp => {
+          if (resp && resp.data.code === 200) {
+            this.$message({
+              type: 'success',
+              message: resp.data.message
+            })
+          } else {
+            this.loadUsers()
+            this.$message({
+              type: 'warning',
+              message: resp.data.message
+            })
+          }
+        }).catch(error => {
+          this.loadUsers()
+          if (error.response) {
+            this.$message({
+              type: 'danger',
+              message: `系统接口${error.response.status}异常`
+            })
+          } else {
+            this.$message({
+              type: 'danger',
+              message: '服务器无响应'
+            })
+          }
+        })
     }
   }
 }
 </script>
 <style scoped>
+#status2 {
+  color:red;
+}
 </style>

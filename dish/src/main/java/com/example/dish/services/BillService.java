@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface BillService {
     List<Bill> getAllBills();
-    List<Bill> listBills(Query query);
+    List<Bill> listBills(Query query)throws Exception;
     List<Bill> getBillsByCustomerId(Long customerId);
     List<Bill> getBillsByUserId(Long userId);
     List<Bill> getUserBills();
@@ -17,5 +17,5 @@ public interface BillService {
     void saveBill(Bill bill);
     void completeBill(Long id)throws Exception;
     void cancelBill(Long id)throws Exception;
-    void deleteBillById(Long id);
+    void deleteBillById(Long id) throws Exception;
 }
