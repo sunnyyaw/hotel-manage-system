@@ -1,4 +1,4 @@
-package com.example.dish.utils;
+package com.example.dish.common;
 import java.util.Random;
 public class StringUtils {
     public static String getRandomString(int length){

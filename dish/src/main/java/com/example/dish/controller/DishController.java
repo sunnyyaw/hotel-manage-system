@@ -4,6 +4,8 @@ import com.example.dish.common.PageUtils;
 import com.example.dish.common.Query;
 import com.example.dish.entity.*;
 import com.example.dish.common.Result;
+import com.example.dish.dto.BillDetailDTO;
+import com.example.dish.dto.DishDetailDTO;
 import com.example.dish.services.DishService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +21,9 @@ public class DishController {
     private DishService dishService;
 
     @GetMapping("/dishes")
-    public PageUtils getAllDishes(@RequestParam Map<String,Object> params) {
+    public PageUtils listDishes(@RequestParam Map<String,Object> params) {
         Query query = new Query(params);
-        List<Dish> dishes = dishService.listDishes(query);
+        List<Dish> dishes = dishService.getAllDishes(query);
         int count = dishService.count(query);
         return new PageUtils(dishes,count,query.getPageSize());
     }
@@ -30,25 +32,23 @@ public class DishController {
         return dishService.getAllDishDetails();
     }
     @GetMapping("/dishes/{id}")
-    public Result<Dish> getDishById(@PathVariable("id") Long id) {
-        return Result.success("查询成功",dishService.getDishById(id));
+    public Result<Dish> getDishById(@PathVariable("id") Long id)throws Exception {
+        return Result.success("查询成功",dishService.get(id));
     }
     @PostMapping("/dishes")
-    public void addDish(@RequestBody Dish dish) {
+    public Result<String> addDish(@RequestBody Dish dish) {
         dishService.saveDish(dish);
+        return Result.success("保存成功");
     }
     @DeleteMapping("/dishes/{id}")
-    public void deleteDish(@PathVariable("id") Long id){
-        dishService.deleteDishById(id);
+    public Result<String> deleteDish(@PathVariable("id") Long id) throws Exception {
+        dishService.delete(id);
+        return Result.success("删除成功");
     }
     @PutMapping( "/dishes/{id}")
     public void updateDish(@PathVariable Long id,@RequestBody Dish dish){
         dish.setId(id);
         dishService.updateDish(dish);
-    }
-    @GetMapping(value = "/categories/{categoryId}/dishes")
-    public List<Dish> getDishesByCategoryId(@PathVariable Long categoryId) {
-        return dishService.getDishesByCategoryId(categoryId);
     }
 
     @GetMapping("/bills/{id}/dishes")

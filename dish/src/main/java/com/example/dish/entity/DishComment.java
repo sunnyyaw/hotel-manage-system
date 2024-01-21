@@ -12,5 +12,6 @@ public class DishComment {
     private Integer rate;
     private String comment;
     private Date time;
+
     private User user;
 }

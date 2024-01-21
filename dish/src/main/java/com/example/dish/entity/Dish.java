@@ -13,6 +13,9 @@ public class Dish{
     private String description;
     private BigDecimal unitPrice;
     private String cover;
+    private Integer status;
+
     private Category category;
+    private Integer billNum;
     private String averageScore;
 }

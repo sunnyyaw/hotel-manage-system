@@ -1,4 +1,4 @@
-package com.example.dish.utils;
+package com.example.dish.common;
 
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.IAcsClient;

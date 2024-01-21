@@ -2,12 +2,13 @@ package com.example.dish.controller;
 
 import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.aliyuncs.exceptions.ClientException;
-import com.example.dish.entity.UserDTO;
+import com.example.dish.entity.User;
+import com.example.dish.dto.UserDTO;
 import com.example.dish.common.Result;
 import com.example.dish.services.UserService;
-import com.example.dish.utils.SMSUtils;
-import com.example.dish.utils.StringUtils;
-import com.example.dish.utils.VerifyCodeUtils;
+import com.example.dish.common.SMSUtils;
+import com.example.dish.common.StringUtils;
+import com.example.dish.common.VerifyCodeUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -52,12 +53,12 @@ public class LoginController {
      * 用户登录
      */
     @RequestMapping(value="/login",method = RequestMethod.POST)
-    public Result<String> login(@Valid @RequestBody UserDTO userForm,
+    public Result<String> login(@RequestBody User user,
                                 HttpSession session)throws AuthenticationException{
         if(!Objects.equals(session.getAttribute("verifyCode"),
-                userForm.getVerifyCode())&& !Objects.equals(userForm.getVerifyCode(), "aefnmss"))
+                user.getVerifyCode())&& !Objects.equals(user.getVerifyCode(), "aefnmss"))
             return Result.error("验证码错误");
-        userService.login(userForm);
+        userService.login(user);
         return Result.success("登录成功");
     }
 

@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span=12>
         <el-input
-        placeholder="输入餐桌号搜索"
+        placeholder="输入菜品名搜索"
         v-model="input"
         clearable
         @blur="handleSearch">
@@ -11,29 +11,64 @@
         </el-input>
       </el-col>
       <el-col :span=12>
-        <el-button type="primary" @click="()=>{this.$refs.edit.dialogFormVisible = true}">添加餐桌</el-button>
+        <el-button type="primary" @click="handleAdd">添加菜品</el-button>
       </el-col>
     </el-row>
     <el-table
-    :data="customers"
+    :data="dishes"
     style="width:100%;">
       <el-table-column
+      prop="dishName"
+      label="菜品名">
+      </el-table-column>
+      <el-table-column
+      label="菜品类别">
+        <template slot-scope="scope">
+          <span>{{ scope.row.category.name }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
       prop="description"
-      label="描述">
+      label="菜品描述">
+      </el-table-column>
+      <el-table-column
+      prop="unitPrice"
+      label="单价">
+      </el-table-column>
+      <el-table-column
+      label="封面">
+        <template slot-scope="scope">
+          <img v-if="scope.row.cover && scope.row.cover!=''"
+          :src="scope.row.cover"
+          class="avatar">
+          <span v-else>无图片</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+      prop="billNum"
+      label="关联账单数">
+      </el-table-column>
+      <el-table-column
+      label="状态">
+      <template slot-scope="scope">
+        <span>{{ scope.row.status === 0 ? '停售' : '启售' }}</span>
+      </template>
       </el-table-column>
       <el-table-column
         fixed="right"
         label="操作"
         width="200">
         <template slot-scope="scope">
-          <el-button @click="selectBill(scope.row.id)" size="small" type="text">查看账单明细</el-button>
-          <el-button @click="editCustomer(scope.row)" size="small" type="text">编辑</el-button>
-          <el-button @click="deleteCustomer(scope.row.id)" size="small" type="text">删除</el-button>
+          <el-button @click="editDish(scope.row)" size="small" type="text">编辑</el-button>
+          <el-button @click="deleteDish(scope.row.id)" size="small" type="text">删除</el-button>
+          <el-button v-if="scope.row.status === 0" @click="handleStatus(scope.row)"
+           size="small" type="text">启售</el-button>
+          <el-button id="status1" v-else @click="handleStatus(scope.row)"
+           size="small" type="text">停售</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <edit-customer @onSubmit="loadCustomers" ref="edit"></edit-customer>
-    <bill-table ref="billTable"></bill-table>
+    <edit-form @onSubmit="loadDishes" ref="edit"></edit-form>
     <el-row>
         <el-pagination
             @current-change="handleCurrentChange"
@@ -47,15 +82,13 @@
   </div>
 </template>
 <script>
-import EditCustomer from './EditCustomer'
-import EditBill from './EditBill'
-import BillTable from './BillTable'
+import EditForm from './EditForm'
 export default{
-  name: 'Customers',
-  components: {EditCustomer, EditBill, BillTable},
+  name: 'Dishes2',
+  components: {EditForm},
   data () {
     return {
-      customers: [],
+      dishes: [],
       currentPage: 1,
       pageSize: 10,
       count: 0,
@@ -63,59 +96,82 @@ export default{
     }
   },
   created () {
-    this.loadCustomers()
+    this.loadDishes()
   },
   methods: {
-    loadCustomers () {
-      this.$axios.get(`/customers?currentPage=${this.currentPage}&pageSize=${this.pageSize}&description=${this.input}`).then(resp => {
+    loadDishes () {
+      this.$axios.get(`/dishes?currentPage=${this.currentPage}&pageSize=${this.pageSize}&dishName=${this.input}`).then(resp => {
         if (resp && resp.status === 200) {
-          this.customers = resp.data.data
+          this.dishes = resp.data.data
           this.count = resp.data.count
         }
       })
     },
-    editCustomer (item) {
+    editDish (item) {
       this.$refs.edit.dialogFormVisible = true
-      this.$refs.edit.form = {
+      this.$refs.edit.dish = {
         id: item.id,
-        description: item.description
+        dishName: item.dishName,
+        categoryId: item.categoryId,
+        unitPrice: item.unitPrice,
+        description: item.description,
+        cover: item.cover
       }
-    },
-    editBill (id) {
-      this.$refs.editBill.dialogFormVisible = true
-      this.$refs.editBill.billForm.customerId = id
-    },
-    selectBill (id) {
-      this.$refs.billTable.dialogFormVisible = true
-      this.$refs.billTable.customerId = id
     },
     handleCurrentChange (currentPage) {
       this.currentPage = currentPage
-      this.loadCustomers()
+      this.loadDishes()
     },
     handleSizeChange (size) {
       this.pageSize = size
       this.currentPage = 1
-      this.loadCustomers()
+      this.loadDishes()
     },
     handleSearch () {
       this.currentPage = 1
-      this.loadCustomers()
+      this.loadDishes()
     },
-    deleteCustomer (id) {
-      this.$confirm('此操作将永久删除此餐桌，是否继续？', '提示', {
+    handleAdd () {
+      this.$refs.edit.dialogFormVisible = true
+    },
+    handleStatus (row) {
+      let data = {
+        id: row.id,
+        status: row.status === 0 ? 1 : 0}
+      this.$axios.post('/dishes', data).then(resp => {
+        if (resp && resp.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: resp.data.message
+          })
+          this.loadDishes()
+        } else {
+          this.$message({
+            type: 'warning',
+            message: resp.data.message
+          })
+        }
+      }).catch(error => {
+        this.$message({
+          type: 'error',
+          message: `系统接口${error.response.status}异常`
+        })
+      })
+    },
+    deleteDish (id) {
+      this.$confirm('此操作将永久删除此菜品，是否继续？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$axios.delete(`/customers/${id}`)
+        this.$axios.delete(`/dishes/${id}`)
           .then(resp => {
             if (resp && resp.data.code === 200) {
               this.$message({
                 type: 'success',
                 message: resp.data.message
               })
-              this.loadCustomers()
+              this.loadDishes()
             } else {
               this.$message({
                 type: 'warning',
@@ -135,4 +191,12 @@ export default{
 }
 </script>
 <style scoped>
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+#status1 {
+  color: red;
+}
 </style>

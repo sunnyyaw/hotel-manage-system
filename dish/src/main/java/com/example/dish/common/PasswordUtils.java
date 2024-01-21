@@ -1,4 +1,4 @@
-package com.example.dish.utils;
+package com.example.dish.common;
 
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.SimpleHash;

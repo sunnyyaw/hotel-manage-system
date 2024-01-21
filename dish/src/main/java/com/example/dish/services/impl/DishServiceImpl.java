@@ -2,8 +2,9 @@ package com.example.dish.services.impl;
 
 import com.example.dish.common.Query;
 import com.example.dish.entity.*;
+import com.example.dish.dto.BillDetailDTO;
+import com.example.dish.dto.DishDetailDTO;
 import com.example.dish.mapper.*;
-import com.example.dish.services.Bill_DishService;
 import com.example.dish.services.DishService;
 import com.example.dish.services.UserService;
 import org.apache.shiro.SecurityUtils;
@@ -19,7 +20,7 @@ public class DishServiceImpl implements DishService {
     @Autowired
     private DishMapper dishMapper;
     @Autowired
-    private Bill_DishService billDishService;
+    private Bill_DishMapper billDishMapper;
     @Autowired
     private CategoryMapper categoryMapper;
     @Autowired
@@ -28,19 +29,16 @@ public class DishServiceImpl implements DishService {
     private UserService userService;
 
     @Override
-    public List<Dish> listDishes(Query query) {
-        return dishMapper.listDishes(query);
-    }
-
-    @Override
     public int count(Query query) {
         return dishMapper.count(query);
     }
 
     @Override
-    public List<Dish> getAllDishes(){
-        return dishMapper.getAllDishes().stream().peek(dish->{
-            dish.setCategory(categoryMapper.getCategoryById(dish.getCategoryId()));
+    public List<Dish> getAllDishes(Query query){
+        return dishMapper.listDishes(query).stream().peek(dish->{
+            Query query1 = new Query();
+            query1.put("dishId",dish.getId());
+            dish.setBillNum(billDishMapper.count(query1));
             double score = dishCommentMapper.getAllDishComments().stream()
                     .filter(dishComment -> Objects.equals(dishComment.getDishId(),dish.getId()))
                     .mapToInt(DishComment::getRate).summaryStatistics().getAverage();
@@ -49,28 +47,37 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
-    public Dish getDishById(Long id){
-        Dish dish = dishMapper.getDishById(id);
-        if(dish==null)return null;
-        dish.setCategory(categoryMapper.getCategoryById(dish.getCategoryId()));
-        double score = dishCommentMapper.getAllDishComments().stream()
-                .filter(dishComment -> Objects.equals(dishComment.getDishId(),dish.getId()))
-                        .mapToInt(DishComment::getRate).summaryStatistics().getAverage();
-        dish.setAverageScore(String.format("%.2f",score));
-        return dish;
+    public Dish getDishById(Long id){;
+        return dishMapper.getDishById(id);
     }
 
     @Override
-    public List<Dish> getDishesByBillId(Long billId){
-        List<Bill_Dish> bill_dishes = billDishService.getDishesByBillId(billId);
-        return bill_dishes.stream().map(
-                bill_dish -> this.getDishById(bill_dish.getDishId())
-        ).collect(Collectors.toList());
+    public Dish get(Long id) throws Exception {
+        Dish dish = dishMapper.getDishById(id);
+        if(dish==null)
+            throw new Exception("菜品不存在");
+        double score = dishCommentMapper.getAllDishComments().stream()
+                .filter(dishComment -> Objects.equals(dishComment.getDishId(),dish.getId()))
+                .mapToInt(DishComment::getRate).summaryStatistics().getAverage();
+        dish.setAverageScore(String.format("%.2f",score));
+        return dishMapper.getDishById(id);
+    }
+
+    @Override
+    public void delete(Long id) throws Exception {
+        if(dishMapper.getDishById(id)==null)
+            throw new Exception("菜品不存在");
+        Query query = new Query();
+        query.put("dishId",id);
+        int count = billDishMapper.count(query);
+        if(count > 0)
+            throw new Exception("有账单与此菜品关联，不得删除");
+        dishMapper.deleteDishById(id);
     }
 
     @Override
     public BillDetailDTO getDetailsByBillId(Long billId) {
-        List<Bill_Dish> bill_dishes = billDishService.getDishesByBillId(billId);
+        List<Bill_Dish> bill_dishes = billDishMapper.getDishesByBillId(billId);
         List<DishDetailDTO> dishDetails = bill_dishes.stream().map(bill_dish -> {
             Dish dish = this.getDishById(bill_dish.getDishId());
             return DishDetailDTO.builder().dishId(dish.getId())
@@ -92,14 +99,8 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
-    public List<Dish> getDishesByCategoryId(Long categoryId)  {
-        return this.getAllDishes().stream().filter(dish->
-            Objects.equals(dish.getCategoryId(),categoryId)).toList();
-    }
-
-    @Override
     public List<DishDetailDTO> getAllDishDetails() {
-        List<Dish> dishes = this.getAllDishes();
+        List<Dish> dishes = dishMapper.getAllDishes();
         return dishes.stream().map(dish -> {
             Category category = categoryMapper.getCategoryById(dish.getCategoryId());
             DishDetailDTO dishDetail = new DishDetailDTO();
@@ -115,7 +116,7 @@ public class DishServiceImpl implements DishService {
     @Override
     public List<DishComment> getDishCommentsByDishId(Long dishId){
         List<DishComment> dishComments =
-                this.getAllDishComments().stream().filter(dishComment ->
+                dishCommentMapper.getAllDishComments().stream().filter(dishComment ->
                 Objects.equals(dishId,dishComment.getDishId())).toList();
         dishComments.forEach(dishComment ->
             dishComment.setUser(userService.getUserById(dishComment.getUserId())));
@@ -130,59 +131,29 @@ public class DishServiceImpl implements DishService {
         String username = SecurityUtils.getSubject().getPrincipal().toString();
         dishComment.setUserId(userService.getUserByUsername(username).getId());
         dishComment.setTime(new Date(System.currentTimeMillis()));
-        this.addDishComment(dishComment);
+        dishCommentMapper.addDishComment(dishComment);
     }
 
     @Override
     public void modifyDishComment(DishComment dishComment) throws Exception {
         if(Objects.isNull(dishComment.getDishId())||
         Objects.isNull(dishComment.getId())||
-        Objects.isNull(this.getDishById(dishComment.getId())))
+        Objects.isNull(dishMapper.getDishById(dishComment.getId())))
             throw new Exception("评论不存在!");
-        this.updateDishComment(dishComment);
-    }
-
-    @Override
-    public void addDish(Dish dish) {
-        dishMapper.addDish(dish);
+        dishCommentMapper.updateDishComment(dishComment);
     }
 
     @Override
     public void saveDish(Dish dish) {
         Dish d = this.getDishById(dish.getId());
         if(Objects.isNull(d))
-            this.addDish(dish);
-        this.updateDish(dish);
-    }
-
-    @Override
-    public void deleteDishById(Long id) {
-        dishMapper.deleteDishById(id);
+            dishMapper.addDish(dish);
+        dishMapper.updateDish(dish);
     }
 
     @Override
     public void updateDish(Dish dish) {
         dishMapper.updateDish(dish);
-    }
-
-    @Override
-    public List<DishComment> getAllDishComments() {
-        return dishCommentMapper.getAllDishComments();
-    }
-
-    @Override
-    public DishComment getDishCommentById(Long id) {
-        return dishCommentMapper.getDishCommentById(id);
-    }
-
-    @Override
-    public void addDishComment(DishComment dishComment) {
-        dishCommentMapper.addDishComment(dishComment);
-    }
-
-    @Override
-    public void updateDishComment(DishComment dishComment) {
-        dishCommentMapper.updateDishComment(dishComment);
     }
 
     @Override

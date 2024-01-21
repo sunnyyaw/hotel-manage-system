@@ -2,10 +2,9 @@ package com.example.dish.services.impl;
 
 import com.example.dish.common.Query;
 import com.example.dish.entity.Category;
-import com.example.dish.entity.Dish;
 import com.example.dish.mapper.CategoryMapper;
+import com.example.dish.mapper.DishMapper;
 import com.example.dish.services.CategoryService;
-import com.example.dish.services.DishService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,17 +14,22 @@ import java.util.Objects;
 @Service
 public class CategoryServiceImpl implements CategoryService {
     @Autowired
-    private DishService dishService;
+    private DishMapper dishMapper;
     @Autowired
     private CategoryMapper categoryMapper;
     @Override
-    public List<Category> listCategories(Query query) {
-        return categoryMapper.listCategories(query);
+    public int count(Query query) {
+        return categoryMapper.count(query);
     }
 
     @Override
-    public int count(Query query) {
-        return categoryMapper.count(query);
+    public List<Category> getCategories(Query query) {
+        return categoryMapper.listCategories(query).stream().peek(category -> {
+            Query query1 = new Query();
+            query1.put("categoryId",category.getId());
+            category.setAssociation(dishMapper.count(query1));
+        }).toList();
+
     }
 
     @Override
@@ -52,7 +56,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new Exception("找不到类别");
         Query query = new Query();
         query.put("categoryId",id);
-        int count =dishService.count(query);
+        int count = dishMapper.count(query);
         if(count > 0)
             throw new Exception("类别有菜品关联，不能删除");
         categoryMapper.deleteCategoryById(id);

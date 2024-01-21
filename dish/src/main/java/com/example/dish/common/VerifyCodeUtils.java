@@ -1,4 +1,4 @@
-package com.example.dish.utils;
+package com.example.dish.common;
 
 
 import org.springframework.beans.factory.annotation.Autowired;

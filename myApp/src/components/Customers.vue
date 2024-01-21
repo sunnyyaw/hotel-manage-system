@@ -22,6 +22,10 @@
       label="描述">
       </el-table-column>
       <el-table-column
+      prop="association"
+      label="关联账单数">
+      </el-table-column>
+      <el-table-column
         fixed="right"
         label="操作"
         width="200">

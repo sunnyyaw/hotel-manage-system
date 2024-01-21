@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.dish.mapper.DishFlavorMapper">
+    <sql id="keys">
+        <trim suffixOverrides=",">
+            <if test="dishId!=null">
+                dishId,
+            </if>
+            <if test="name!=null">
+                name,
+            </if>
+            <if test="value!=null">
+                value,
+            </if>
+            <if test="createTime!=null">
+                create_time,
+            </if>
+            <if test="updateTime!=null">
+                update_time,
+            </if>
+        </trim>
+    </sql>
+    <sql id="values">
+        <trim suffixOverrides=",">
+            <if test="dishId!=null">
+                #{dishId},
+            </if>
+            <if test="name!=null">
+                #{name},
+            </if>
+            <if test="value!=null">
+                #{value},
+            </if>
+            <if test="createTime!=null">
+                #{createTime},
+            </if>
+            <if test="updateTime!=null">
+                #{updateTime},
+            </if>
+        </trim>
+    </sql>
+    <sql id="columns">
+        id,
+        dishId,
+        name,
+        value,
+        create_time,
+        update_time
+    </sql>
+
+    <select id="all" parameterType="Map" resultType="com.example.dish.entity.DishFlavor">
+        select <include refid="columns"/> from dish_flavor
+        <where>
+            <if test="dishId!=null and dishId!=''">
+                dishId = #{dishId}
+            </if>
+        </where>
+        order by id
+        <if test="current!=null and pageSize!= null">
+            offset #{current} rows fetch next #{pageSize} rows only
+        </if>
+    </select>
+
+    <select id="count" parameterType="Map" resultType="int">
+        select <include refid="columns"/> from dish_flavor
+        <where>
+            <if test="dishId!=null and dishId!=''">
+                dishId = #{dishId}
+            </if>
+        </where>
+    </select>
+
+    <select id="get" parameterType="java.lang.Long" resultType="com.example.dish.entity.DishFlavor">
+        select <include refid="columns"/> from dish_flavor where id = #{id}
+    </select>
+
+    <insert id="add" parameterType="com.example.dish.entity.DishFlavor" useGeneratedKeys="true" keyProperty="id">
+        insert into dish_flavor (<include refid="keys"/> ) values (<include refid="values"/>)
+    </insert>
+
+    <update id="update" parameterType="com.example.dish.entity.DishFlavor">
+        update dish_flavor
+        <set>
+            <if test="dishId!=null">dishId = #{dishId},</if>
+            <if test="name!=null">name = #{name},</if>
+            <if test="value!=null">value = #{value}</if>
+            <if test="createTime!=null">create_time = #{createTime},</if>
+            <if test="updateTime!=null">update_time = #{updateTime}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from dish_flavor where id = #{id}
+    </delete>
+</mapper>

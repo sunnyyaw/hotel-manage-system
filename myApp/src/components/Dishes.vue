@@ -6,15 +6,13 @@
         :key="item.id"
         style="width: 135px;margin-bottom: 20px;height: 233px;float: left;margin-right: 15px;"
         class="dish" dishStyle="padding:10px" shadow="hover" >
-        <div class="cover" @click="editDish(item)">
+        <div class="cover">
             <img :src="item.cover" alt="封面">
         </div>
         <div class="info">
             <div class="name">
                 <router-link :to="`/dishes/${item.id}/comments`">{{ item.dishName }}</router-link>
             </div>
-            <i class="el-icon-edit" @click="editDish(item)"></i>
-            <i class="el-icon-delete" @click="deleteDish(item.id)"></i>
             <router-link :to="`/dishes/${item.id}/comments`">
               <i class="el-icon-chat-dot-round"></i>
             </router-link>
@@ -28,7 +26,6 @@
           label="描述文字"
         ></el-input-number>
         </el-card>
-        <edit-form @onSubmit="loadDishes()" ref="edit"></edit-form>
         <order-form @onSubmit="dishes.forEach(dish => dish.num = 0)" ref="orderForm"></order-form>
         <p>总价格:{{ sumPrice }}</p>
         <p>菜品数:{{ sumNum }}</p>
@@ -49,11 +46,10 @@
 </template>
 <script>
 import OrderForm from './OrderForm'
-import EditForm from './EditForm'
 import SearchBar from './SearchBar'
 export default{
   name: 'Dishes',
-  components: {EditForm, SearchBar, OrderForm},
+  components: {SearchBar, OrderForm},
   data () {
     return {
       dishes: [],
@@ -95,10 +91,6 @@ export default{
         }
       })
     },
-    editDish (item) {
-      this.$refs.edit.dialogFormVisible = true
-      this.$refs.edit.dish = item
-    },
     handleCurrentChange (currentPage) {
       this.currentPage = currentPage
       this.loadDishes()
@@ -107,26 +99,6 @@ export default{
       this.pageSize = size
       this.currentPage = 1
       this.loadDishes()
-    },
-    deleteDish (id) {
-      this.$confirm('此操作将永久删除此餐品，是否继续？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$axios.delete(`/dishes/${id}`)
-          .then(resp => {
-            if (resp && resp.status === 200) {
-              this.loadDishes()
-            }
-          })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        }
-        )
-      })
     },
     orderDishes () {
       this.$refs.orderForm.sumPrice = this.sumPrice

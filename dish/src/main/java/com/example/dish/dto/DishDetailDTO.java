@@ -1,4 +1,4 @@
-package com.example.dish.entity;
+package com.example.dish.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

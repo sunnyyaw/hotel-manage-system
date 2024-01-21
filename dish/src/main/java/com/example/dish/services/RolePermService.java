@@ -22,14 +22,12 @@ public interface RolePermService extends RoleMapper, PermissionMapper {
 
 
 
-    List<Permission> getAllPermissionInfo();
     void savePermission(Permission permission)throws Exception;
     void addAllRole_Permission(Permission permission);
     void deletePermission(Long id)throws Exception;
     boolean matchesByURL(Long id, String url);
     boolean matchesByURL(String url);
     boolean existsByPermissionId(Long id);
-    boolean anyMatchesURL(String url);
     void deleteRole_PermissionsByPermission(Long id);
     List<Role_Permission> getRole_PermissionsByPermissionId(Long id);
 }

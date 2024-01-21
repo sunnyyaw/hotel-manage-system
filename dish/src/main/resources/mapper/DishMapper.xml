@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.dish.mapper.DishMapper">
+    <resultMap id="dishResultMap" type="com.example.dish.entity.Dish">
+        <id property="id" column="id"/>
+        <result property="dishName" column="dishName"/>
+        <result property="unitPrice" column="unitPrice"/>
+        <result property="description" column="description"/>
+        <result property="categoryId" column="categoryId"/>
+        <result property="cover" column="cover"/>
+        <result property="status" column="status"/>
+        <association property="category" javaType="com.example.dish.entity.Category">
+            <id property="id" column="id"/>
+            <result property="name" column="name"/>
+            <result property="type" column="type"/>
+            <result property="sort" column="sort"/>
+        </association>
+    </resultMap>
+
     <sql id="keys">
         <trim suffixOverrides=",">
             <if test="dishName!=null">
@@ -17,6 +33,9 @@
             </if>
             <if test="cover!=null">
                 cover,
+            </if>
+            <if test="status!=null">
+                status,
             </if>
         </trim>
     </sql>
@@ -37,27 +56,42 @@
             <if test="cover!=null">
                 #{cover},
             </if>
+            <if test="status!=null">
+                #{status},
+            </if>
         </trim>
     </sql>
     <sql id="columns">
-        id,
-        dishName,
-        description,
-        unitPrice,
-        categoryId,
-        cover
+        dishes.id,
+        dishes.dishName,
+        dishes.description,
+        dishes.unitPrice,
+        dishes.categoryId,
+        dishes.cover,
+        dishes.status,
+        categories.id,
+        categories.name,
+        categories.type,
+        categories.sort
     </sql>
-    <select id="listDishes" parameterType="Map" resultType="com.example.dish.entity.Dish">
+    <sql id="joins">
+        left join categories on dishes.categoryId = categories.id
+    </sql>
+    <select id="listDishes" parameterType="Map" resultMap="dishResultMap">
         select <include refid="columns"/> from dishes
+        <include refid="joins"/>
         <where>
             <if test="dishName!=null and dishName!=''">
-                dishName like concat('%',#{dishName},'%')
+                dishes.dishName like concat('%',#{dishName},'%')
             </if>
             <if test="categoryId!=null and categoryId!=''">
-                and categoryId = #{categoryId}
+                and dishes.categoryId = #{categoryId}
+            </if>
+            <if test="status!=null and status!=''">
+                and dishes.status = #{status}
             </if>
         </where>
-        order by id
+        order by dishes.id
         <if test="current!=null and pageSize!= null">
             offset #{current} rows fetch next #{pageSize} rows only
         </if>
@@ -67,28 +101,23 @@
         select count(*) from dishes
         <where>
             <if test="dishName!=null and dishName!=''">
-                dishName like concat('%',#{dishName},'%')
+                dishes.dishName like concat('%',#{dishName},'%')
             </if>
             <if test="categoryId!=null and categoryId!=''">
-                and categoryId = #{categoryId}
+                and dishes.categoryId = #{categoryId}
             </if>
         </where>
     </select>
 
-    <select id="getDishById" parameterType="java.lang.Long" resultType="com.example.dish.entity.Dish">
-        select <include refid="columns"/> from dishes where id = #{id}
-    </select>
-
-    <select id="getDishesByCategoryId" parameterType="java.lang.Long" resultType="com.example.dish.entity.Dish">
-        select <include refid="columns"/> from dishes where categoryId = #{categoryId}
-    </select>
-
-    <select id="getAllDishes" resultType="com.example.dish.entity.Dish">
+    <select id="getDishById" parameterType="java.lang.Long" resultMap="dishResultMap">
         select <include refid="columns"/> from dishes
+        <include refid="joins"/>
+        where dishes.id = #{id}
     </select>
 
-    <select id="getDishesByKeyword" parameterType="java.lang.String" resultType="com.example.dish.entity.Dish">
-        select <include refid="columns"/> from dishes where dishName like concat('%',#{keyword},'%') or description like concat('%',#{keyword},'%')
+    <select id="getAllDishes"  resultMap="dishResultMap">
+        select <include refid="columns"/> from dishes
+        <include refid="joins"/>
     </select>
 
     <insert id="addDish" parameterType="com.example.dish.entity.Dish" useGeneratedKeys="true" keyProperty="id">
@@ -107,6 +136,7 @@
             <if test="unitPrice!=null">unitPrice = #{unitPrice},</if>
             <if test="categoryId!=null">categoryId = #{categoryId},</if>
             <if test="cover!=null">cover = #{cover}</if>
+            <if test="status!=null">status = #{status}</if>
         </set>
         where id = #{id}
     </update>

@@ -15,7 +15,6 @@ public interface DishMapper {
     int count(Query query);
     List<Dish> getAllDishes() ;
     Dish getDishById(Long id) ;
-    List<Dish> getDishesByCategoryId(Long categoryId) ;
     void addDish(Dish dish);
     void deleteDishById(Long id);
     void updateDish(Dish dish);

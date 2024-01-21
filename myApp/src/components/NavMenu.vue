@@ -14,6 +14,7 @@ export default {
       navList: [
         {name: '/index', navItem: '首页'},
         {name: '/dish', navItem: '菜单'},
+        {name: '/dishes', navItem: '菜品管理'},
         {name: '/category', navItem: '类别管理'},
         {name: '/customer', navItem: '餐桌管理'},
         {name: '/bill', navItem: '账单管理'},

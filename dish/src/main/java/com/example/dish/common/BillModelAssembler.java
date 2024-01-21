@@ -1,4 +1,4 @@
-package com.example.dish.utils;
+package com.example.dish.common;
 
 import com.example.dish.common.BillStatus;
 import com.example.dish.controller.BillController;

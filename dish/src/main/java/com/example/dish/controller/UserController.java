@@ -3,7 +3,7 @@ package com.example.dish.controller;
 import com.example.dish.common.PageUtils;
 import com.example.dish.common.Query;
 import com.example.dish.entity.User;
-import com.example.dish.entity.UserDTO;
+import com.example.dish.dto.UserDTO;
 import com.example.dish.common.Result;
 import com.example.dish.services.UserService;
 import jakarta.validation.Valid;

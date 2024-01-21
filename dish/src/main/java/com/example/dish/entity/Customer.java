@@ -6,4 +6,6 @@ import lombok.Data;
 public class Customer {
     private Long id;
     private String description;
+
+    private Integer association;
 }

@@ -1,21 +1,76 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.dish.mapper.Bill_DishMapper">
+    <sql id="keys">
+        <trim suffixOverrides=",">
+            <if test="dishId!=null">
+                dishId,
+            </if>
+            <if test="billId!=null">
+                billId,
+            </if>
+            <if test="num!=null">
+                num,
+            </if>
+        </trim>
+    </sql>
+    <sql id="values">
+        <trim suffixOverrides=",">
+            <if test="dishId!=null">
+                #{dishId},
+            </if>
+            <if test="billId!=null">
+                #{billId},
+            </if>
+            <if test="num!=null">
+                #{num},
+            </if>
+        </trim>
+    </sql>
+    <sql id="columns">
+        billId,
+        dishId,
+        num
+    </sql>
+    <select id="listBill_Dishes" parameterType="Map" resultType="com.example.dish.entity.Bill_Dish">
+        select <include refid="columns"/> from bills_dishes
+        <where>
+            <if test="billId!=null and billId!=''">
+                billId = #{billId}
+            </if>
+            <if test="dishId!=null and dishId!=''">
+                and dishId = #{dishId}
+            </if>
+        </where>
+    </select>
+    <select id="count" parameterType="Map" resultType="int">
+        select count(*) from bills_dishes
+        <where>
+            <if test="billId!=null and billId!=''">
+                billId = #{billId}
+            </if>
+            <if test="dishId!=null and dishId!=''">
+                and dishId = #{dishId}
+            </if>
+        </where>
+    </select>
 
     <select id="getAllBill_Dish" resultType="com.example.dish.entity.Bill_Dish">
-        select * from bills_dishes
+        select <include refid="columns"/> from bills_dishes
     </select>
 
     <select id="getBill_DishById" resultType="com.example.dish.entity.Bill_Dish">
-        select * from bills_dishes where billId = #{billId} and dishId = #{dishId}
+        select <include refid="columns"/> from bills_dishes
+        where billId = #{billId} and dishId = #{dishId}
     </select>
 
     <select id="getDishesByBillId" parameterType="java.lang.Long" resultType="com.example.dish.entity.Bill_Dish">
-        select * from bills_dishes where billId = #{billId}
+        select <include refid="columns"/> from bills_dishes
+        where billId = #{billId}
     </select>
 
     <insert id="addBill_Dish" parameterType="com.example.dish.entity.Bill_Dish">
-        insert into bills_dishes ( billId, dishId,num ) values ( #{billId}, #{dishId},#{num})
+        insert into bills_dishes (<include refid="keys"/> ) values (<include refid="values"/>)
     </insert>
 
     <delete id="deleteBill_Dish" parameterType="com.example.dish.entity.Bill_Dish">

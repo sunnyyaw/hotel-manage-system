@@ -1,5 +1,6 @@
 package com.example.dish.mapper;
 
+import com.example.dish.common.Query;
 import com.example.dish.entity.Role;
 import com.example.dish.entity.User_Role;
 import org.apache.ibatis.annotations.Mapper;
@@ -11,6 +12,7 @@ import java.util.List;
 @Repository
 public interface User_RoleMapper {
     List<User_Role> getAllUser_Roles();
+    List<User_Role> all(Query query);
     void addUser_Role(User_Role user_role);
     void deleteUser_Role(User_Role user_role);
 }

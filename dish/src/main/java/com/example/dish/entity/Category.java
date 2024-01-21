@@ -8,4 +8,6 @@ public class Category {
     private Integer type;
     private Integer sort;
     private String name;
+
+    private Integer association;
 }

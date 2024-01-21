@@ -16,9 +16,9 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
     @GetMapping("/customers")
-    public PageUtils listCustomers(@RequestParam Map<String,Object> params){
+    public PageUtils getCustomers(@RequestParam Map<String,Object> params){
         Query query = new Query(params);
-        List<Customer> customers = customerService.listCustomers(query);
+        List<Customer> customers = customerService.getCustomers(query);
         int count = customerService.count(query);
         return new PageUtils(customers,count, query.getPageSize());
     }

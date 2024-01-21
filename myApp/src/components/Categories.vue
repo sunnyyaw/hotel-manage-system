@@ -32,6 +32,10 @@
       label="排序字段">
       </el-table-column>
       <el-table-column
+      prop="association"
+      label="关联菜品数量">
+      </el-table-column>
+      <el-table-column
         fixed="right"
         label="操作"
         width="150">

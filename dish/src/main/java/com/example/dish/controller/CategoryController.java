@@ -18,9 +18,9 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
     @GetMapping("/categories")
-    public PageUtils listCategories(@RequestParam Map<String,Object> params){
+    public PageUtils getCategories(@RequestParam Map<String,Object> params){
         Query query = new Query(params);
-        List<Category> categories = categoryService.listCategories(query);
+        List<Category> categories = categoryService.getCategories(query);
         int count = categoryService.count(query);
         return new PageUtils(categories,count,query.getPageSize());
     }

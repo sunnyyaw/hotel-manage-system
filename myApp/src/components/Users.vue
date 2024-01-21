@@ -148,23 +148,25 @@ export default {
       this.loadUsers()
     },
     handleStatus (user) {
-      user.status = user.status === 0 ? 1 : 0
-      this.$axios.put('/users', user)
+      let data = {
+        id: user.id,
+        status: user.status === 0 ? 1 : 0
+      }
+      this.$axios.put('/users', data)
         .then(resp => {
           if (resp && resp.data.code === 200) {
             this.$message({
               type: 'success',
               message: resp.data.message
             })
-          } else {
             this.loadUsers()
+          } else {
             this.$message({
               type: 'warning',
               message: resp.data.message
             })
           }
         }).catch(error => {
-          this.loadUsers()
           if (error.response) {
             this.$message({
               type: 'danger',

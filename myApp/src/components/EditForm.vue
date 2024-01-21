@@ -1,6 +1,5 @@
 <template>
   <div>
-    <el-button type="primary" @click="dialogFormVisible = true">添加菜品</el-button>
     <el-dialog
       title="添加/修改餐品"
       :visible.sync="dialogFormVisible"
@@ -55,26 +54,43 @@ export default {
   },
   methods: {
     clear () {
-      this.dish = ''
+      this.dish = {
+        id: '',
+        cover: '',
+        dishName: '',
+        categoryId: '',
+        description: '',
+        unitPrice: ''
+      }
       this.$refs.imgUpload.clear()
     },
     onSubmit () {
       this.$axios.post('/dishes', this.dish).then(resp => {
-        if (resp && resp.status === 200) {
+        if (resp && resp.data.code === 200) {
           this.$message({
             type: 'success',
-            message: '保存成功'
+            message: resp.data.message
           })
           this.dialogFormVisible = false
           this.$emit('onSubmit')
+        } else {
+          this.$message({
+            type: 'warning',
+            message: resp.data.message
+          })
         }
+      }).catch(error => {
+        this.$message({
+          type: 'error',
+          message: `系统接口${error.response.status}异常`
+        })
       })
     },
     loadCategories () {
-      this.$axios.get('/categories')
+      this.$axios.get('/categories?type=0')
         .then(resp => {
           if (resp && resp.status === 200) {
-            this.categories = resp.data
+            this.categories = resp.data.data
           }
         })
     },

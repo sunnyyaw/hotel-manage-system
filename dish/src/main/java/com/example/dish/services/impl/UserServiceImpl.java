@@ -5,10 +5,11 @@ import com.example.dish.Exception.UserExistException;
 import com.example.dish.Exception.UserNotFoundException;
 import com.example.dish.common.Query;
 import com.example.dish.entity.*;
+import com.example.dish.dto.UserDTO;
 import com.example.dish.mapper.*;
 import com.example.dish.services.RolePermService;
 import com.example.dish.services.UserService;
-import com.example.dish.utils.PasswordUtils;
+import com.example.dish.common.PasswordUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.UsernamePasswordToken;
@@ -67,7 +68,20 @@ public class UserServiceImpl implements UserService {
                 this.encodePassword(userDTO);
             userMapper.updateUser(userDTO);
         }
-        this.updateUser_RolesByUser(userDTO);
+
+        List<Role> newRoles = userDTO.getRoles();
+        if(newRoles == null)return;
+        Query query = new Query();
+        query.put("userId",userDTO.getId());
+        List<User_Role> user_roles = user_roleMapper.all(query);
+        user_roles.forEach(user_role ->
+                user_roleMapper.deleteUser_Role(user_role));
+        newRoles.forEach(newRole->{
+            User_Role user_role = new User_Role();
+            user_role.setUserId(userDTO.getId());
+            user_role.setRoleId(newRole.getId());
+            user_roleMapper.addUser_Role(user_role);
+        });
     }
 
     @Override
@@ -189,21 +203,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser_RolesByUser(User user) {
-        Long userId = user.getId();
-        List<Role> newRoles = user.getRoles();
-        List<User_Role> user_roles = this.getUser_RolesByUser(user);
-        user_roles.forEach(user_role ->
-            user_roleMapper.deleteUser_Role(user_role));
-        newRoles.forEach(newRole->{
-            User_Role user_role = new User_Role();
-            user_role.setUserId(userId);
-            user_role.setRoleId(newRole.getId());
-            user_roleMapper.addUser_Role(user_role);
-        });
-    }
-
-    @Override
     public void encodePassword(User userDTO) throws Exception{
         User user= userMapper.getUserByUsername(userDTO.getUsername());
         if(!Objects.isNull(user)&&
@@ -216,10 +215,6 @@ public class UserServiceImpl implements UserService {
         userDTO.setPassword(encodedPassword);
     }
 
-    @Override
-    public List<User> getAllUsers(){
-        return userMapper.getAllUsers();
-    }
     @Override
     public int count(Query query) {
         return userMapper.count(query);
@@ -246,17 +241,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void addUser(User user) {
-        userMapper.addUser(user);
-    }
-
-
-    @Override
-    public void deleteUsers(List<Long> ids) {
-        userMapper.deleteUsers(ids);
-    }
-
-    @Override
     @Transactional
     public void updateUser(User user)throws Exception {
         if(!this.existsById(user.getId()))
@@ -266,6 +250,19 @@ public class UserServiceImpl implements UserService {
         if(user.getNeedEncode())
             this.encodePassword(user);
         userMapper.updateUser(user);
-        this.updateUser_RolesByUser(user);
+
+        List<Role> newRoles = user.getRoles();
+        if(newRoles == null)return;
+        Query query = new Query();
+        query.put("userId",user.getId());
+        List<User_Role> user_roles = user_roleMapper.all(query);
+        user_roles.forEach(user_role ->
+                user_roleMapper.deleteUser_Role(user_role));
+        newRoles.forEach(newRole->{
+            User_Role user_role = new User_Role();
+            user_role.setUserId(user.getId());
+            user_role.setRoleId(newRole.getId());
+            user_roleMapper.addUser_Role(user_role);
+        });
     }
 }

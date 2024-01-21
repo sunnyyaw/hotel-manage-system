@@ -154,12 +154,6 @@ public class RoleServiceImpl implements RolePermService {
     }
 
 
-
-    @Override
-    public List<Permission> getAllPermissionInfo() {
-        return this.getAllPermissions();
-    }
-
     @Override
     public void savePermission(Permission permission) throws Exception {
         if(this.matchesByURL(permission.getId(),permission.getUrl()))
@@ -236,11 +230,6 @@ public class RoleServiceImpl implements RolePermService {
         return !Objects.isNull(this.getPermissionById(id));
     }
 
-    @Override
-    public boolean anyMatchesURL(String url) {
-        return this.getAllPermissions().stream()
-                .anyMatch(permission -> Pattern.matches(permission.getUrl(),url));
-    }
 
     @Override
     public void deleteRole_PermissionsByPermission(Long id) {
