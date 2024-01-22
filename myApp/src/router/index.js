@@ -4,6 +4,7 @@ import AppIndex from '@/components/AppIndex'
 import DishIndex from '@/components/DishIndex'
 import DishInfo from '@/components/DishInfo'
 import Dishes2 from '@/components/Dishes2'
+import DishAdd from '@/components/DishAdd'
 import CustomerIndex from '@/components/CustomerIndex'
 import Categories from '@/components/Categories'
 import CategoryUpdate from '@/components/CategoryUpdate'
@@ -58,6 +59,14 @@ export default new Router({
           path: '/dishes',
           name: 'Dishes2',
           component: Dishes2,
+          meta: {
+            requireAuth: true
+          }
+        },
+        {
+          path: '/dishes/:dishId?/add',
+          name: 'DishAdd',
+          component: DishAdd,
           meta: {
             requireAuth: true
           }

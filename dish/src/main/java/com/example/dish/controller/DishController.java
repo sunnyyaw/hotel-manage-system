@@ -45,10 +45,15 @@ public class DishController {
         dishService.delete(id);
         return Result.success("删除成功");
     }
-    @PutMapping( "/dishes/{id}")
-    public void updateDish(@PathVariable Long id,@RequestBody Dish dish){
-        dish.setId(id);
+    @PutMapping( "/dishes")
+    public Result<String> updateDish(@RequestBody Dish dish)throws Exception{
         dishService.updateDish(dish);
+        return Result.success("修改成功");
+    }
+    @PutMapping("/dishesBatch")
+    public Result<String> updateDishBatch(@RequestBody List<Dish> dishList)throws Exception{
+        dishService.updateDishBatch(dishList);
+        return Result.success("批量更新成功");
     }
 
     @GetMapping("/bills/{id}/dishes")

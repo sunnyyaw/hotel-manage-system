@@ -3,6 +3,7 @@ package com.example.dish.entity;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 
 @Data
@@ -15,6 +16,7 @@ public class Dish{
     private String cover;
     private Integer status;
 
+    private List<DishFlavor> dishFlavorList;
     private Category category;
     private Integer billNum;
     private String averageScore;

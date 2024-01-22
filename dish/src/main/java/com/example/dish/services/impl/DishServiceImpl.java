@@ -7,9 +7,14 @@ import com.example.dish.dto.DishDetailDTO;
 import com.example.dish.mapper.*;
 import com.example.dish.services.DishService;
 import com.example.dish.services.UserService;
+import jakarta.annotation.Resource;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -17,8 +22,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class DishServiceImpl implements DishService {
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
     @Autowired
     private DishMapper dishMapper;
+    @Autowired
+    private DishFlavorMapper dishFlavorMapper;
     @Autowired
     private Bill_DishMapper billDishMapper;
     @Autowired
@@ -60,10 +69,11 @@ public class DishServiceImpl implements DishService {
                 .filter(dishComment -> Objects.equals(dishComment.getDishId(),dish.getId()))
                 .mapToInt(DishComment::getRate).summaryStatistics().getAverage();
         dish.setAverageScore(String.format("%.2f",score));
-        return dishMapper.getDishById(id);
+        return dish;
     }
 
     @Override
+    @Transactional
     public void delete(Long id) throws Exception {
         if(dishMapper.getDishById(id)==null)
             throw new Exception("菜品不存在");
@@ -72,6 +82,11 @@ public class DishServiceImpl implements DishService {
         int count = billDishMapper.count(query);
         if(count > 0)
             throw new Exception("有账单与此菜品关联，不得删除");
+        //删除口味
+        List<DishFlavor> dishFlavorList = dishFlavorMapper.all(query);
+        if(dishFlavorList!=null)
+            dishFlavorList.forEach(dishFlavor ->
+                    dishFlavorMapper.delete(dishFlavor.getId()));
         dishMapper.deleteDishById(id);
     }
 
@@ -144,16 +159,68 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
+    @Transactional
     public void saveDish(Dish dish) {
         Dish d = this.getDishById(dish.getId());
-        if(Objects.isNull(d))
+        if(Objects.isNull(d)){
             dishMapper.addDish(dish);
+            //新增口味
+            List<DishFlavor> dishFlavorList = dish.getDishFlavorList();
+            if(dishFlavorList!=null){
+                dishFlavorList.forEach(dishFlavor -> {
+                    dishFlavor.setDishId(dish.getId());
+                    dishFlavorMapper.add(dishFlavor);
+                });
+            }
+        }
         dishMapper.updateDish(dish);
+        List<DishFlavor> dishFlavorList = dish.getDishFlavorList();
+        if(dishFlavorList!=null){
+            //删除口味
+            Query query = new Query();
+            query.put("dishId",dish.getId());
+            List<DishFlavor> dishFlavors = dishFlavorMapper.all(query);
+            dishFlavors.forEach(dishFlavor ->
+                    dishFlavorMapper.delete(dishFlavor.getId()));
+
+            //新增口味
+            dishFlavorList.forEach(dishFlavor -> {
+                dishFlavor.setDishId(dish.getId());
+                dishFlavorMapper.add(dishFlavor);
+            });
+        }
     }
 
     @Override
-    public void updateDish(Dish dish) {
+    @Transactional
+    public void updateDish(Dish dish)throws Exception {
+        if(dishMapper.getDishById(dish.getId())==null)
+            throw new Exception("菜品不存在");
         dishMapper.updateDish(dish);
+        List<DishFlavor> dishFlavorList = dish.getDishFlavorList();
+        if(dishFlavorList!=null){
+            //删除口味
+            Query query = new Query();
+            query.put("dishId",dish.getId());
+            List<DishFlavor> dishFlavors = dishFlavorMapper.all(query);
+            dishFlavors.forEach(dishFlavor ->
+                    dishFlavorMapper.delete(dishFlavor.getId()));
+
+            //新增口味
+            dishFlavorList.forEach(dishFlavor -> {
+                dishFlavor.setDishId(dish.getId());
+                dishFlavorMapper.add(dishFlavor);
+            });
+        }
+    }
+
+    @Override
+    public void updateDishBatch(List<Dish> dishList) throws Exception {
+        SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH,false);
+        DishMapper dishMapper1 = session.getMapper(DishMapper.class);
+        dishList.forEach(dishMapper1::updateDish);
+        session.commit();
+        session.close();
     }
 
     @Override

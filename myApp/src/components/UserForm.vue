@@ -2,7 +2,7 @@
   <div>
   <el-page-header @back="goBack" :content="this.$route.params.userId==null?'添加用户':'修改用户'">
   </el-page-header>
-    <el-form ref="form" :model="userForm">
+    <el-form id="form" ref="form" :model="userForm">
       <el-form-item label="用户名">
         <el-input v-model="userForm.username"></el-input>
       </el-form-item>
@@ -131,4 +131,9 @@ export default {
 }
 </script>
 <style scoped>
+#form{
+  width: 50%;
+  height: 50%;
+  text-align: left;
+}
 </style>

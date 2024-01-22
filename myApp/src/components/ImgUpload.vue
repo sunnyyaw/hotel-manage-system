@@ -4,8 +4,7 @@
   :action="axios.defaults.baseURL + '/covers'"
   :show-file-list="false"
   :with-credentials="true"
-  :on-success="handleAvatarSuccess"
-  :before-upload="beforeAvatarUpload">
+  :on-success="handleAvatarSuccess">
   <img v-if="url && url!=''"
   :src="url"
   class="avatar">

@@ -81,7 +81,7 @@ export default{
   },
   methods: {
     loadDishes () {
-      this.$axios.get(`/dishes?currentPage=${this.currentPage}&pageSize=${this.pageSize}&categoryId=${this.cid}`).then(resp => {
+      this.$axios.get(`/dishes?currentPage=${this.currentPage}&pageSize=${this.pageSize}&categoryId=${this.cid}&status=1`).then(resp => {
         if (resp && resp.status === 200) {
           resp.data.data.forEach(dish => {
             dish.num = 0

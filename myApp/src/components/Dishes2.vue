@@ -10,13 +10,27 @@
         <i slot="prefix" class="el-input__icon el-icon-search"></i>
         </el-input>
       </el-col>
-      <el-col :span=12>
-        <el-button type="primary" @click="handleAdd">添加菜品</el-button>
+      <el-col :span=4>
+        <el-button @click="batchUpdate(1)" type="primary">批量启售</el-button>
+      </el-col>
+      <el-col :span=4>
+        <el-button @click="batchUpdate(0)" type="primary">批量停售</el-button>
+      </el-col>
+      <el-col :span=4>
+        <router-link to="/dishes/add">
+          <el-button type="primary">添加菜品</el-button>
+        </router-link>
       </el-col>
     </el-row>
     <el-table
     :data="dishes"
-    style="width:100%;">
+    :row-key="(row)=>row.id"
+    style="width:100%;"
+    ref="multipleTable">
+      <el-table-column
+      type="selection"
+      :reserve-selection="true">
+      </el-table-column>
       <el-table-column
       prop="dishName"
       label="菜品名">
@@ -59,7 +73,9 @@
         label="操作"
         width="200">
         <template slot-scope="scope">
-          <el-button @click="editDish(scope.row)" size="small" type="text">编辑</el-button>
+          <router-link :to="`/dishes/${scope.row.id}/add`">
+            <el-button size="small" type="text">编辑</el-button>
+          </router-link>
           <el-button @click="deleteDish(scope.row.id)" size="small" type="text">删除</el-button>
           <el-button v-if="scope.row.status === 0" @click="handleStatus(scope.row)"
            size="small" type="text">启售</el-button>
@@ -68,7 +84,6 @@
         </template>
       </el-table-column>
     </el-table>
-    <edit-form @onSubmit="loadDishes" ref="edit"></edit-form>
     <el-row>
         <el-pagination
             @current-change="handleCurrentChange"
@@ -82,10 +97,8 @@
   </div>
 </template>
 <script>
-import EditForm from './EditForm'
 export default{
   name: 'Dishes2',
-  components: {EditForm},
   data () {
     return {
       dishes: [],
@@ -107,17 +120,6 @@ export default{
         }
       })
     },
-    editDish (item) {
-      this.$refs.edit.dialogFormVisible = true
-      this.$refs.edit.dish = {
-        id: item.id,
-        dishName: item.dishName,
-        categoryId: item.categoryId,
-        unitPrice: item.unitPrice,
-        description: item.description,
-        cover: item.cover
-      }
-    },
     handleCurrentChange (currentPage) {
       this.currentPage = currentPage
       this.loadDishes()
@@ -130,9 +132,6 @@ export default{
     handleSearch () {
       this.currentPage = 1
       this.loadDishes()
-    },
-    handleAdd () {
-      this.$refs.edit.dialogFormVisible = true
     },
     handleStatus (row) {
       let data = {
@@ -185,6 +184,34 @@ export default{
             })
           })
       }).catch(() => {
+      })
+    },
+    batchUpdate (newStatus) {
+      let selection = this.$refs.multipleTable.selection
+      let dishList = selection.map(dish => {
+        return {
+          id: dish.id,
+          status: newStatus
+        }
+      })
+      this.$axios.put('/dishesBatch', dishList).then(resp => {
+        if (resp && resp.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: resp.data.message
+          })
+          this.loadDishes()
+        } else {
+          this.$message({
+            type: 'warning',
+            message: resp.data.message
+          })
+        }
+      }).catch(error => {
+        this.$message({
+          type: 'error',
+          message: `系统接口${error.response.status}异常`
+        })
       })
     }
   }

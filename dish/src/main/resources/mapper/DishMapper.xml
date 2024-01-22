@@ -10,11 +10,16 @@
         <result property="cover" column="cover"/>
         <result property="status" column="status"/>
         <association property="category" javaType="com.example.dish.entity.Category">
-            <id property="id" column="id"/>
-            <result property="name" column="name"/>
+            <id property="id" column="cid"/>
+            <result property="name" column="cname"/>
             <result property="type" column="type"/>
             <result property="sort" column="sort"/>
         </association>
+        <collection property="dishFlavorList" ofType="com.example.dish.entity.DishFlavor">
+            <id property="id" column="did"/>
+            <result property="name" column="dname"/>
+            <result property="value" column="value"/>
+        </collection>
     </resultMap>
 
     <sql id="keys">
@@ -69,13 +74,17 @@
         dishes.categoryId,
         dishes.cover,
         dishes.status,
-        categories.id,
-        categories.name,
+        categories.id cid,
+        categories.name cname,
         categories.type,
-        categories.sort
+        categories.sort,
+        dish_flavor.id did,
+        dish_flavor.name dname,
+        dish_flavor.value
     </sql>
     <sql id="joins">
         left join categories on dishes.categoryId = categories.id
+        left join dish_flavor on dishes.id = dish_flavor.dishId
     </sql>
     <select id="listDishes" parameterType="Map" resultMap="dishResultMap">
         select <include refid="columns"/> from dishes
@@ -106,6 +115,9 @@
             <if test="categoryId!=null and categoryId!=''">
                 and dishes.categoryId = #{categoryId}
             </if>
+            <if test="status!=null and status!=''">
+                and dishes.status = #{status}
+            </if>
         </where>
     </select>
 
@@ -135,7 +147,7 @@
             <if test="description!=null">description = #{description},</if>
             <if test="unitPrice!=null">unitPrice = #{unitPrice},</if>
             <if test="categoryId!=null">categoryId = #{categoryId},</if>
-            <if test="cover!=null">cover = #{cover}</if>
+            <if test="cover!=null">cover = #{cover},</if>
             <if test="status!=null">status = #{status}</if>
         </set>
         where id = #{id}

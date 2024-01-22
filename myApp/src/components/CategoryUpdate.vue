@@ -1,8 +1,8 @@
 <template>
   <div>
-  <el-page-header @back="goBack" content="修改用户">
+  <el-page-header @back="goBack" content="修改类别">
   </el-page-header>
-    <el-form ref="form" :model="form">
+    <el-form id="form" ref="form" :model="form">
       <el-form-item label="类别名">
         <el-input v-model="form.name"></el-input>
       </el-form-item>
@@ -89,4 +89,9 @@ export default {
 }
 </script>
 <style scoped>
+#form{
+  width: 40%;
+  height: 40%;
+  text-align: left;
+}
 </style>

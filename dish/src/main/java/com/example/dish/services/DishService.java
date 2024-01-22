@@ -21,5 +21,6 @@ public interface DishService {
     void modifyDishComment(DishComment dishComment)throws Exception;
     void deleteDishCommentById(Long id);
     void saveDish(Dish dish);
-    void updateDish(Dish dish);
+    void updateDish(Dish dish) throws Exception;
+    void updateDishBatch(List<Dish> dishList) throws Exception;
 }
