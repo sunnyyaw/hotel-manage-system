@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.dish.mapper.SetmealMapper">
+    <resultMap id="SetmealResultMap" type="com.example.dish.entity.Setmeal">
+        <id property="id" column="id"/>
+        <result property="categoryId" column="categoryId"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="cover" column="cover"/>
+        <result property="status" column="status"/>
+        <result property="create_time" column="create_time"/>
+        <result property="update_time" column="update_time"/>
+        <association property="category" javaType="com.example.dish.entity.Category">
+            <id property="id" column="cid"/>
+            <result property="name" column="cname"/>
+        </association>
+        <collection property="dishList" ofType="com.example.dish.entity.Dish">
+            <id property="id" column="did"/>
+            <result property="dishName" column="dishName"/>
+        </collection>
+        <collection property="setmeal_dishList" ofType="com.example.dish.entity.Setmeal_Dish">
+            <id property="id" column="sid"/>
+            <result property="dishId" column="dishId"/>
+            <result property="num" column="num"/>
+        </collection>
+    </resultMap>
+    <sql id="keys">
+        <trim suffixOverrides=",">
+            <if test="categoryId!=null">
+                categoryId,
+            </if>
+            <if test="name!=null">
+                name,
+            </if>
+            <if test="description!=null">
+                description,
+            </if>
+            <if test="cover!=null">
+                cover,
+            </if>
+            <if test="status!=null">
+                status,
+            </if>
+            <if test="createTime!=null">
+                create_time,
+            </if>
+            <if test="updateTime!=null">
+                update_time,
+            </if>
+        </trim>
+    </sql>
+    <sql id="values">
+        <trim suffixOverrides=",">
+            <if test="categoryId!=null">
+                #{categoryId},
+            </if>
+            <if test="name!=null">
+                #{name},
+            </if>
+            <if test="description!=null">
+                #{description},
+            </if>
+            <if test="cover!=null">
+                #{cover},
+            </if>
+            <if test="status!=null">
+                #{status},
+            </if>
+            <if test="createTime!=null">
+                #{createTime},
+            </if>
+            <if test="updateTime!=null">
+                #{updateTime},
+            </if>
+        </trim>
+    </sql>
+    <sql id="columns">
+        setmeal.id,
+        setmeal.categoryId,
+        setmeal.name,
+        setmeal.description,
+        setmeal.cover,
+        setmeal.status,
+        setmeal.create_time,
+        setmeal.update_time,
+        categories.id cid,
+        categories.name cname,
+        dishes.id did,
+        dishes.dishName,
+        setmeal_dish.id sid,
+        setmeal_dish.dishId,
+        setmeal_dish.num
+    </sql>
+    <sql id="joins">
+        left join categories on setmeal.categoryId = categories.id
+        left join setmeal_dish on setmeal.id = setmeal_dish.setmealId
+        left join dishes on setmeal_dish.dishId = dishes.id
+    </sql>
+
+    <select id="all" parameterType="Map" resultMap="SetmealResultMap">
+        select <include refid="columns"/> from setmeal
+        <include refid="joins"/>
+        <where>
+            <if test="name!=null and name!=''">
+                name = #{name}
+            </if>
+        </where>
+        order by setmeal.id
+        <if test="current!=null and pageSize!=null">
+            offset #{current} rows fetch next #{pageSize} rows only
+        </if>
+    </select>
+
+    <select id="count" parameterType="Map" resultType="int">
+        select count(*) from setmeal
+        <where>
+            <if test="name!=null and name!=''">
+                name = #{name}
+            </if>
+        </where>
+    </select>
+
+    <select id="get" parameterType="java.lang.Long" resultMap="SetmealResultMap">
+        select <include refid="columns"/> from setmeal
+        <include refid="joins"/>
+        where setmeal.id = #{id}
+    </select>
+
+    <insert id="add" parameterType="com.example.dish.entity.Setmeal" useGeneratedKeys="true" keyProperty="id">
+        insert into setmeal
+        <choose>
+            <when test="
+            categoryId != null or
+            name != null or
+            description != null or
+            cover != null or
+            status != null or
+            createTime != null or
+            updateTime != null">
+                ( <include refid="keys"/>) values (<include refid="values"/>)
+            </when>
+            <otherwise>
+                default values
+            </otherwise>
+        </choose>
+    </insert>
+
+    <update id="update" parameterType="com.example.dish.entity.Setmeal">
+        <if test="
+            categoryId != null or
+            name != null or
+            description != null or
+            cover != null or
+            status != null or
+            createTime != null or
+            updateTime != null">
+            update setmeal
+            <set>
+                <if test="categoryId!=null">categoryId = #{categoryId} ,</if>
+                <if test="name!=null">name = #{name},</if>
+                <if test="description!=null">description = #{description},</if>
+                <if test="cover!=null">cover = #{cover},</if>
+                <if test="status!=null">status = #{status},</if>
+                <if test="createTime!=null">create_time = #{createTime},</if>
+                <if test="updateTime!=null">update_time = #{updateTime}</if>
+            </set>
+            where id = #{id}
+        </if>
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from setmeal where id = #{id}
+    </delete>
+
+</mapper>

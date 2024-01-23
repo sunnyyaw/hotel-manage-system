@@ -22,6 +22,7 @@ public class User implements Serializable {
 
     private String verifyCode;
     private List<Role> roles;
+    private List<Permission> permissions;
     private Boolean rememberMe = Boolean.FALSE;
     private Boolean needEncode = Boolean.FALSE;
 }

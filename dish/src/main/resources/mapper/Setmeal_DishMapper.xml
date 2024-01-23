@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.dish.mapper.Setmeal_DishMapper">
+    <sql id="keys">
+        <trim suffixOverrides=",">
+            <if test="dishId!=null">
+                dishId,
+            </if>
+            <if test="setmealId!=null">
+                setmealId,
+            </if>
+            <if test="num!=null">
+                num,
+            </if>
+        </trim>
+    </sql>
+    <sql id="values">
+        <trim suffixOverrides=",">
+            <if test="dishId!=null">
+                #{dishId},
+            </if>
+            <if test="setmealId!=null">
+                #{setmealId},
+            </if>
+            <if test="num!=null">
+                #{num},
+            </if>
+        </trim>
+    </sql>
+    <sql id="columns">
+        id,
+        dishId,
+        setmealId,
+        num
+    </sql>
+    <select id="all" parameterType="Map" resultType="com.example.dish.entity.Setmeal_Dish">
+        select <include refid="columns"/> from setmeal_dish
+        <where>
+            <if test="dishId!=null and dishId!=''">
+                dishId = #{dishId}
+            </if>
+            <if test="setmealId!=null and setmealId!=''">
+                and setmealId = #{setmealId}
+            </if>
+        </where>
+    </select>
+    <select id="count" parameterType="Map" resultType="int">
+        select count(*) from setmeal_dish
+        <where>
+            <if test="dishId!=null and dishId!=''">
+                dishId = #{dishId}
+            </if>
+            <if test="setmealId!=null and setmealId!=''">
+                and setmealId = #{setmealId}
+            </if>
+        </where>
+    </select>
+
+    <select id="get" parameterType="java.lang.Long" resultType="com.example.dish.entity.Setmeal_Dish">
+        select <include refid="columns"/> from setmeal_dish
+    </select>
+
+    <insert id="add" parameterType="com.example.dish.entity.Setmeal_Dish">
+        insert into setmeal_dish (<include refid="keys"/> ) values (<include refid="values"/>)
+    </insert>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from setmeal_dish where id = #{id}
+    </delete>
+</mapper>

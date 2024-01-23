@@ -32,15 +32,6 @@ public class LoginInterceptor implements HandlerInterceptor {
             httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
             return false;
         }
-        if(!rolePermService.matchesByURL(httpServletRequest.getRequestURI()))
-            return true;
-        User user = userService.getUserByUsername(subject.getPrincipal().toString());
-        if(user==null)
-            throw new Exception("用户不存在");
-        List<Permission> permissions = userService.getPermissionsByUser(user);
-        if(permissions.stream().noneMatch(permission->
-                Pattern.matches(permission.getUrl(),httpServletRequest.getRequestURI())))
-            throw new Exception("您没有访问权限");
         return true;
     }
 }

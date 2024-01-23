@@ -16,9 +16,7 @@ public interface UserMapper{
     int count(Query query);
     User getUserById(Long id);
     User getUserByUsername(String username);
-    User getUserByPhone(String phone);
     void addUser(User user);
     void deleteUser(User user);
-    void deleteUsers(List<Long> ids);
     void updateUser(User user);
 }

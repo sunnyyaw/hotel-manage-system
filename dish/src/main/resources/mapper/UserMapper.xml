@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.dish.mapper.UserMapper">
+    <resultMap id="UserResultMap" type="com.example.dish.entity.User">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="salt" column="salt"/>
+        <result property="phone" column="phone"/>
+        <result property="status" column="status"/>
+        <collection property="roles" ofType="com.example.dish.entity.Role">
+            <id property="id" column="rid"/>
+            <result property="roleName" column="roleName"/>
+        </collection>
+        <collection property="permissions" ofType="com.example.dish.entity.Permission">
+            <id property="id" column="pid"/>
+            <result property="url" column="url"/>
+            <result property="description" column="description"/>
+        </collection>
+    </resultMap>
     <sql id="keys">
         <trim suffixOverrides=",">
             <if test="username!=null">
@@ -39,8 +56,28 @@
             </if>
         </trim>
     </sql>
-    <select id="getAllUsers" resultType="com.example.dish.entity.User">
-        select * from users
+    <sql id="columns">
+        users.id,
+        users.username,
+        users.password,
+        users.salt,
+        users.phone,
+        users.status,
+        roles.id rid,
+        roles.roleName,
+        permissions.id pid,
+        permissions.url,
+        permissions.description
+    </sql>
+    <sql id="joins">
+        left join users_roles on users.id = users_roles.userId
+        left join roles on users_roles.roleId = roles.id
+        left join roles_permissions on roles.id = roles_permissions.roleId
+        left join permissions on roles_permissions.permissionId = permissions.id
+    </sql>
+    <select id="getAllUsers" resultMap="UserResultMap">
+        select <include refid="columns"/> from users
+        <include refid="joins"/>
     </select>
 
     <select id="count" parameterType="Map" resultType="int">
@@ -52,29 +89,30 @@
         </where>
     </select>
 
-    <select id="listUsers" parameterType="Map" resultType="com.example.dish.entity.User">
-        select * from users
+    <select id="listUsers" parameterType="Map" resultMap="UserResultMap">
+        select <include refid="columns"/> from users
+        <include refid="joins"/>
         <where>
             <if test="username!=null and username!=''">
                 username like concat('%',#{username},'%')
             </if>
         </where>
-        order by id
+        order by users.id
         <if test="current!=null and pageSize!= null">
             offset #{current} rows fetch next #{pageSize} rows only
         </if>
     </select>
 
-    <select id="getUserByUsername" parameterType="java.lang.String">
-        select * from users where username = #{username}
+    <select id="getUserByUsername" parameterType="java.lang.String" resultMap="UserResultMap">
+        select <include refid="columns"/> from users
+        <include refid="joins"/>
+        where username = #{username}
     </select>
 
-    <select id="getUserByPhone" parameterType="java.lang.String">
-        select * from users where phone = #{phone}
-    </select>
-
-    <select id="getUserById" parameterType="java.lang.Long">
-        select * from users where id = #{id}
+    <select id="getUserById" parameterType="java.lang.Long" resultMap="UserResultMap">
+        select <include refid="columns"/> from users
+        <include refid="joins"/>
+        where users.id = #{id}
     </select>
 
     <insert id="addUser" parameterType="com.example.dish.entity.User" useGeneratedKeys="true" keyProperty="id">
@@ -84,13 +122,6 @@
 
     <delete id="deleteUser" parameterType="com.example.dish.entity.User">
         delete from users where id = #{id}
-    </delete>
-
-    <delete id="deleteUsers">
-        delete form users where id in
-        <foreach collection="list" item="id" open="(" separator="," close=")">
-            #{id}
-        </foreach>
     </delete>
 
     <update id="updateUser" parameterType="com.example.dish.entity.User">

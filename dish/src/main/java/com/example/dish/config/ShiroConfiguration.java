@@ -11,6 +11,7 @@ import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
+import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,21 +30,23 @@ public class ShiroConfiguration {
     @Bean
     public SecurityManager securityManager(){
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
-        securityManager.setRealm(getWJRealm());
+        securityManager.setRealm(getUserPasswordRealm());
         return securityManager;
     }
     @Bean
-    public UserPasswordRealm getWJRealm(){
+    public UserPasswordRealm getUserPasswordRealm(){
         UserPasswordRealm userPasswordRealm = new UserPasswordRealm();
-        userPasswordRealm.setCredentialsMatcher(hashedCredentialsMatcher());
-        return userPasswordRealm;
-    }
-    @Bean
-    public HashedCredentialsMatcher hashedCredentialsMatcher(){
         HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
         hashedCredentialsMatcher.setHashAlgorithmName("md5");
         hashedCredentialsMatcher.setHashIterations(2);
-        return hashedCredentialsMatcher;
+        userPasswordRealm.setCredentialsMatcher(hashedCredentialsMatcher);
+        return userPasswordRealm;
+    }
+    @Bean
+    public DefaultAdvisorAutoProxyCreator getDefaultAdvisorAutoProxyCreator(){
+        DefaultAdvisorAutoProxyCreator autoProxyCreator=new DefaultAdvisorAutoProxyCreator();
+        autoProxyCreator.setProxyTargetClass(true);
+        return autoProxyCreator;
     }
     @Bean
     public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager){
@@ -52,15 +55,11 @@ public class ShiroConfiguration {
         return  authorizationAttributeSourceAdvisor;
     }
     @Bean
-    public SimpleCookie rememberMeCookie() {
-        SimpleCookie simpleCookie = new SimpleCookie("rememberMe");
-        simpleCookie.setMaxAge(259200);
-        return simpleCookie;
-    }
-    @Bean
     public CookieRememberMeManager rememberMeManager(){
         CookieRememberMeManager cookieRememberMeManager = new CookieRememberMeManager();
-        cookieRememberMeManager.setCookie(rememberMeCookie());
+        SimpleCookie simpleCookie = new SimpleCookie("rememberMe");
+        simpleCookie.setMaxAge(259200);
+        cookieRememberMeManager.setCookie(simpleCookie);
         cookieRememberMeManager.setCipherKey(Base64.decode("6ZmI6121ab23R545Sn5ZOlAA+="));
         return cookieRememberMeManager;
     }
