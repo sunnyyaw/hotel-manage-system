@@ -5,6 +5,8 @@ import DishIndex from '@/components/DishIndex'
 import DishInfo from '@/components/DishInfo'
 import Dishes2 from '@/components/Dishes2'
 import DishAdd from '@/components/DishAdd'
+import Setmeal from '@/components/Setmeals'
+import SetmealAdd from '@/components/SetmealAdd'
 import CustomerIndex from '@/components/CustomerIndex'
 import Categories from '@/components/Categories'
 import CategoryUpdate from '@/components/CategoryUpdate'
@@ -59,6 +61,22 @@ export default new Router({
           path: '/dishes',
           name: 'Dishes2',
           component: Dishes2,
+          meta: {
+            requireAuth: true
+          }
+        },
+        {
+          path: '/setmeals',
+          name: 'Setmeal',
+          component: Setmeal,
+          meta: {
+            requireAuth: true
+          }
+        },
+        {
+          path: '/setmeals/:setmealId?/add',
+          name: 'SetmealAdd',
+          component: SetmealAdd,
           meta: {
             requireAuth: true
           }

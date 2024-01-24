@@ -100,6 +100,10 @@ export default{
       this.currentPage = 1
       this.loadDishes()
     },
+    handleSelect () {
+      this.currentPage = 1
+      this.loadDishes()
+    },
     orderDishes () {
       this.$refs.orderForm.sumPrice = this.sumPrice
       this.$refs.orderForm.dishes = this.dishes.filter(dish => dish.num !== 0)

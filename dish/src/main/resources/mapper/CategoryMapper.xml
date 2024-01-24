@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.example.dish.mapper.CategoryMapper">
+    <resultMap id="CategoryResultMap" type="com.example.dish.entity.Category">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
+        <result property="sort" column="sort"/>
+        <collection property="dishList" ofType="com.example.dish.entity.Dish">
+            <id property="id" column="did"/>
+            <result property="dishName" column="dishName"/>
+            <result property="description" column="description"/>
+            <result property="unitPrice" column="unitPrice"/>
+            <result property="cover" column="cover"/>
+            <result property="status" column="status"/>
+        </collection>
+        <collection property="setmealList" ofType="com.example.dish.entity.Setmeal">
+            <id property="id" column="sid"/>
+            <result property="name" column="sname"/>
+            <result property="description" column="s_description"/>
+            <result property="cover" column="s_cover"/>
+            <result property="status" column="s_status"/>
+        </collection>
+    </resultMap>
     <sql id="keys">
         <trim suffixOverrides=",">
             <if test="name!=null">
@@ -28,25 +49,44 @@
         </trim>
     </sql>
     <sql id="columns">
-        id,
-        name,
-        type,
-        sort
+        categories.id,
+        categories.name,
+        categories.type,
+        categories.sort,
+        dishes.id did,
+        dishes.dishName,
+        dishes.description,
+        dishes.unitPrice,
+        dishes.cover,
+        dishes.status,
+        setmeal.id sid,
+        setmeal.name sname,
+        setmeal.description s_description,
+        setmeal.cover s_cover,
+        setmeal.status s_status
     </sql>
-    <select id="listCategories" parameterType="Map" resultType="com.example.dish.entity.Category">
-        select <include refid="columns"/> from categories
-        <where>
-            <if test="name!=null and name!=''">
-                name like concat('%',#{name},'%')
+    <sql id="joins">
+        left join dishes on categories.id = dishes.categoryId
+        left join setmeal on categories.id = setmeal.categoryId
+    </sql>
+    <select id="listCategories" parameterType="Map" resultMap="CategoryResultMap">
+        select <include refid="columns"/> from
+        (
+            select * from categories
+            <where>
+                <if test="name!=null and name!=''">
+                    name like concat('%',#{name},'%')
+                </if>
+                <if test="type!=null and type!=''">
+                    and type = #{type}
+                </if>
+            </where>
+            <if test="current!=null and pageSize!= null">
+                order by sort offset #{current} rows fetch next #{pageSize} rows only
             </if>
-            <if test="type!=null and type!=''">
-                and type = #{type}
-            </if>
-        </where>
-        order by sort
-        <if test="current!=null and pageSize!= null">
-            offset #{current} rows fetch next #{pageSize} rows only
-        </if>
+        )
+        categories
+        <include refid="joins"/>
     </select>
     <select id="count" parameterType="Map" resultType="int">
         select count(*) from categories
@@ -60,8 +100,10 @@
         </where>
     </select>
 
-    <select id="getCategoryById" parameterType="java.lang.Long" resultType="com.example.dish.entity.Category">
-        select <include refid="columns"/> from categories where id = #{id}
+    <select id="getCategoryById" parameterType="java.lang.Long" resultMap="CategoryResultMap">
+        select <include refid="columns"/> from categories
+        <include refid="joins"/>
+        where categories.id = #{id}
     </select>
 
     <insert id="addCategory" parameterType="com.example.dish.entity.Category" useGeneratedKeys="true" keyProperty="id">

@@ -90,17 +90,21 @@
     </select>
 
     <select id="listUsers" parameterType="Map" resultMap="UserResultMap">
-        select <include refid="columns"/> from users
-        <include refid="joins"/>
-        <where>
-            <if test="username!=null and username!=''">
-                username like concat('%',#{username},'%')
+        select <include refid="columns"/> from
+        (
+            select * from users
+            <where>
+                <if test="username!=null and username!=''">
+                    username like concat('%',#{username},'%')
+                </if>
+            </where>
+            <if test="current!=null and pageSize!= null">
+                order by users.id offset #{current} rows fetch next #{pageSize} rows only
             </if>
-        </where>
-        order by users.id
-        <if test="current!=null and pageSize!= null">
-            offset #{current} rows fetch next #{pageSize} rows only
-        </if>
+        )
+        users
+        <include refid="joins"/>
+
     </select>
 
     <select id="getUserByUsername" parameterType="java.lang.String" resultMap="UserResultMap">

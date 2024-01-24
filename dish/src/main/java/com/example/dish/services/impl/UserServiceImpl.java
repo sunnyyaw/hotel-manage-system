@@ -34,11 +34,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> listUsers(Query query) {
-        List<User> users = userMapper.listUsers(query);
-        return users.stream().peek(user->{
-            List<Role> roles = this.getRolesByUser(user);
-            user.setRoles(roles);
-        }).toList();
+        return userMapper.listUsers(query);
     }
 
     @Override

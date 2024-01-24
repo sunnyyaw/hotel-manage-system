@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -79,7 +80,7 @@ public class BillServiceImpl implements BillService {
         Long userId = userMapper.getUserByUsername(username).getId();
         bill.setStatus(BillStatus.IN_PROCESS.ordinal());
         bill.setUserId(userId);
-        bill.setGenTime(new Timestamp(System.currentTimeMillis()));
+        bill.setGenTime(LocalDateTime.now());
         billMapper.addBill(bill);
         Long billId = bill.getId();
         List<Bill_Dish> orders = bill.getOrders();

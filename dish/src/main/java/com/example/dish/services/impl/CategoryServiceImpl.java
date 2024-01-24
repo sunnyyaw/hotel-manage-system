@@ -24,12 +24,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> getCategories(Query query) {
-        return categoryMapper.listCategories(query).stream().peek(category -> {
-            Query query1 = new Query();
-            query1.put("categoryId",category.getId());
-            category.setAssociation(dishMapper.count(query1));
-        }).toList();
-
+        return categoryMapper.listCategories(query);
     }
 
     @Override

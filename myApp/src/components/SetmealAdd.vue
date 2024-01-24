@@ -1,11 +1,11 @@
 <template>
   <div>
-  <el-page-header @back="goBack" :content="this.$route.params.dishId == null ? '添加菜品' : '修改菜品'">
+  <el-page-header @back="goBack" :content="this.$route.params.setmealId == null ? '添加套餐' : '修改套餐'">
   </el-page-header>
     <el-form id="form" ref="form" :model="form">
-      <el-form-item label="菜品名" :label-width="labelWidth"
-      :rules="{required: true, message: '请输入菜品名', trigger:'blur'}">
-        <el-input v-model="form.dishName"></el-input>
+      <el-form-item label="套餐名" :label-width="labelWidth"
+      :rules="{required: true, message: '请输入套餐名', trigger:'blur'}">
+        <el-input v-model="form.name"></el-input>
       </el-form-item>
       <el-form-item label="类别" :label-width="labelWidth"
       :rules="{required: true, message: '请选择类别', trigger:'blur'}">
@@ -13,31 +13,18 @@
             <el-option v-for="item in categories" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="口味" :label-width="labelWidth">
-        <div v-for="(dishFlavor,index) in form.dishFlavorList" :key="index">
-          <td>
-            <el-select v-model="dishFlavor.name" placeholder="请选择口味">
-            <el-option value="甜味"></el-option>
-            <el-option value="温度"></el-option>
-            <el-option value="辣味"></el-option>
-            <el-option value="忌口"></el-option>
-            </el-select>
-          </td>
-          <td>
-            <el-input v-model="dishFlavor.value"></el-input>
-          </td>
-          <td>
-            <el-button @click="form.dishFlavorList.splice(index,1)">删除</el-button>
-          </td>
-        </div>
-        <el-button type="primary" size="small" @click="addDishFlavor">添加口味</el-button>
+      <el-form-item label="菜品" :label-width="labelWidth">
+        <template slot-scope="scope">
+          <div v-for="(item,index) in setmealDishList"
+            :key="index">
+            <span>{{ item.dishName }}</span>
+            <span>{{ item.num }}</span>
+          </div>
+          <el-button @click="handleAddDish" type="primary">添加菜品</el-button>
+        </template>
       </el-form-item>
       <el-form-item label="描述" :label-width="labelWidth">
         <el-input v-model="form.description" type="textarea" autocomplete="off"></el-input>
-      </el-form-item>
-      <el-form-item label="单价" :label-width="labelWidth"
-      :rules="{required: true, message: '请输入单价', trigger:'blur'}">
-        <el-input v-model="form.unitPrice" autocomplete="off"></el-input>
       </el-form-item>
       <el-form-item label="封面" :label-width="labelWidth">
         <img-upload @onUpload="uploadImg" ref="imgUpload"></img-upload>
@@ -47,23 +34,24 @@
       <el-button @click="goBack" type="primary">取消</el-button>
       <el-button @click="onSubmit" type="primary">确定</el-button>
     </div>
+    <setmeal-dish-form ref="setmealDishForm"></setmeal-dish-form>
   </div>
 </template>
 <script>
 import ImgUpload from './ImgUpload'
+import SetmealDishForm from './SetmealDishForm'
 export default {
-  name: 'DishAdd',
-  components: {ImgUpload},
+  name: 'SetmealAdd',
+  components: {ImgUpload, SetmealDishForm},
   data () {
     return {
       form: {
-        dishName: '',
+        name: '',
         categoryId: '',
         description: '',
-        unitPrice: '',
-        cover: '',
-        dishFlavorList: []
+        cover: ''
       },
+      setmealDishList: [],
       categories: [],
       labelWidth: '120px'
     }
@@ -73,19 +61,27 @@ export default {
   },
   methods: {
     goBack () {
-      this.$router.replace('/dishes')
+      this.$router.replace('/setmeals')
     },
     init () {
-      if (this.$route.params.dishId != null) {
-        this.getDish()
+      if (this.$route.params.setmealId != null) {
+        this.getSetmeal()
       }
       this.getCategories()
     },
-    getDish () {
-      this.$axios.get(`/dishes/${this.$route.params.dishId}`)
+    getSetmeal () {
+      this.$axios.get(`/setmeals/${this.$route.params.setmealId}`)
         .then(resp => {
           if (resp && resp.data.code === 200) {
             this.form = resp.data.data
+            this.setmealDishList = this.form.dishList.map(dish => {
+              return {
+                dishId: dish.id,
+                dishName: dish.dishName,
+                num: this.form.setmeal_dishList.find(setmealDish =>
+                  setmealDish.dishId === dish.id).num
+              }
+            })
             this.$refs.imgUpload.url = resp.data.data.cover
           } else {
             this.$message({
@@ -101,7 +97,7 @@ export default {
         })
     },
     getCategories () {
-      this.$axios.get(`/categories?type=0`)
+      this.$axios.get(`/categories?type=1`)
         .then(resp => {
           if (resp && resp.status === 200) {
             this.categories = resp.data.data
@@ -114,7 +110,13 @@ export default {
         })
     },
     onSubmit () {
-      this.$axios.post('/dishes', this.form)
+      this.form.setmeal_dishList = this.setmealDishList
+      this.form.setmeal_dishList.forEach(setmealDish => {
+        setmealDish.setmealId = this.$route.params.setmealId
+      })
+      this.$axios({method: this.$route.params.setmealId == null ? 'POST' : 'PUT',
+        url: '/setmeals',
+        data: this.form})
         .then(resp => {
           if (resp && resp.data.code === 200) {
             this.$message({
@@ -135,11 +137,13 @@ export default {
           })
         })
     },
+    handleAddDish () {
+      this.$refs.setmealDishForm.loadDishes()
+      this.$refs.setmealDishForm.setmealDishList = this.setmealDishList
+      this.$refs.setmealDishForm.dialogFormVisible = true
+    },
     uploadImg () {
       this.form.cover = this.$refs.imgUpload.url
-    },
-    addDishFlavor () {
-      this.form.dishFlavorList.push({name: '', value: ''})
     }
   }
 }

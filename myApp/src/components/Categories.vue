@@ -32,8 +32,10 @@
       label="排序字段">
       </el-table-column>
       <el-table-column
-      prop="association"
       label="关联菜品数量">
+      <template slot-scope="scope">
+        <span>{{ scope.row.dishList.length + scope.row.setmealList.length }}</span>
+      </template>
       </el-table-column>
       <el-table-column
         fixed="right"

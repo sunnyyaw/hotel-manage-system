@@ -4,6 +4,7 @@ import com.example.dish.common.BillStatus;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -12,7 +13,7 @@ public class Bill {
     private Long id;
     private Long customerId;
     private Long userId;
-    private Timestamp genTime;
+    private LocalDateTime genTime;
     private Integer status;
 
     private List<Bill_Dish> orders;

@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span=12>
         <el-input
-        placeholder="输入菜品名搜索"
+        placeholder="输入套餐名搜索"
         v-model="input"
         clearable
         @blur="handleSearch">
@@ -17,13 +17,13 @@
         <el-button @click="batchUpdate(0)" type="primary">批量停售</el-button>
       </el-col>
       <el-col :span=4>
-        <router-link to="/dishes/add">
-          <el-button type="primary">添加菜品</el-button>
+        <router-link to="/setmeals/add">
+          <el-button type="primary">添加套餐</el-button>
         </router-link>
       </el-col>
     </el-row>
     <el-table
-    :data="dishes"
+    :data="setmeals"
     :row-key="(row)=>row.id"
     style="width:100%;"
     ref="multipleTable">
@@ -32,22 +32,18 @@
       :reserve-selection="true">
       </el-table-column>
       <el-table-column
-      prop="dishName"
-      label="菜品名">
+      prop="name"
+      label="套餐名">
       </el-table-column>
       <el-table-column
-      label="菜品类别">
+      label="套餐类别">
         <template slot-scope="scope">
-          <span>{{ scope.row.category.name }}</span>
+          <span>{{ scope.row.category ? scope.row.category.name : '未分配'}}</span>
         </template>
       </el-table-column>
       <el-table-column
       prop="description"
-      label="菜品描述">
-      </el-table-column>
-      <el-table-column
-      prop="unitPrice"
-      label="单价">
+      label="套餐描述">
       </el-table-column>
       <el-table-column
       label="封面">
@@ -59,9 +55,9 @@
         </template>
       </el-table-column>
       <el-table-column
-      label="关联账单数">
+      label="关联菜品数">
         <template slot-scope="scope">
-          <span>{{ scope.row.billList.length }}</span>
+          <span>{{ scope.row.dishList.length }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -75,10 +71,10 @@
         label="操作"
         width="200">
         <template slot-scope="scope">
-          <router-link :to="`/dishes/${scope.row.id}/add`">
+          <router-link :to="`/setmeals/${scope.row.id}/add`">
             <el-button size="small" type="text">编辑</el-button>
           </router-link>
-          <el-button @click="deleteDish(scope.row.id)" size="small" type="text">删除</el-button>
+          <el-button @click="deleteSetmeal(scope.row.id)" size="small" type="text">删除</el-button>
           <el-button v-if="scope.row.status === 0" @click="handleStatus(scope.row)"
            size="small" type="text">启售</el-button>
           <el-button id="status1" v-else @click="handleStatus(scope.row)"
@@ -100,10 +96,10 @@
 </template>
 <script>
 export default{
-  name: 'Dishes2',
+  name: 'Setmeal',
   data () {
     return {
-      dishes: [],
+      setmeals: [],
       currentPage: 1,
       pageSize: 10,
       count: 0,
@@ -111,41 +107,41 @@ export default{
     }
   },
   created () {
-    this.loadDishes()
+    this.load()
   },
   methods: {
-    loadDishes () {
-      this.$axios.get(`/dishes?currentPage=${this.currentPage}&pageSize=${this.pageSize}&dishName=${this.input}`).then(resp => {
+    load () {
+      this.$axios.get(`/setmeals?currentPage=${this.currentPage}&pageSize=${this.pageSize}&name=${this.input}`).then(resp => {
         if (resp && resp.status === 200) {
-          this.dishes = resp.data.data
+          this.setmeals = resp.data.data
           this.count = resp.data.count
         }
       })
     },
     handleCurrentChange (currentPage) {
       this.currentPage = currentPage
-      this.loadDishes()
+      this.load()
     },
     handleSizeChange (size) {
       this.pageSize = size
       this.currentPage = 1
-      this.loadDishes()
+      this.load()
     },
     handleSearch () {
       this.currentPage = 1
-      this.loadDishes()
+      this.load()
     },
     handleStatus (row) {
       let data = {
         id: row.id,
         status: row.status === 0 ? 1 : 0}
-      this.$axios.post('/dishes', data).then(resp => {
+      this.$axios.put('/setmeals', data).then(resp => {
         if (resp && resp.data.code === 200) {
           this.$message({
             type: 'success',
             message: resp.data.message
           })
-          this.loadDishes()
+          this.load()
         } else {
           this.$message({
             type: 'warning',
@@ -159,20 +155,20 @@ export default{
         })
       })
     },
-    deleteDish (id) {
-      this.$confirm('此操作将永久删除此菜品，是否继续？', '提示', {
+    deleteSetmeal (id) {
+      this.$confirm('此操作将永久删除此套餐，是否继续？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$axios.delete(`/dishes/${id}`)
+        this.$axios.delete(`/setmeals/${id}`)
           .then(resp => {
             if (resp && resp.data.code === 200) {
               this.$message({
                 type: 'success',
                 message: resp.data.message
               })
-              this.loadDishes()
+              this.load()
             } else {
               this.$message({
                 type: 'warning',
@@ -196,13 +192,13 @@ export default{
           status: newStatus
         }
       })
-      this.$axios.put('/dishesBatch', dishList).then(resp => {
+      this.$axios.put('/setmealsBatch', dishList).then(resp => {
         if (resp && resp.data.code === 200) {
           this.$message({
             type: 'success',
             message: resp.data.message
           })
-          this.loadDishes()
+          this.load()
         } else {
           this.$message({
             type: 'warning',

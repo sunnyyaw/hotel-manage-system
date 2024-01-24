@@ -20,6 +20,13 @@
             <result property="name" column="dname"/>
             <result property="value" column="value"/>
         </collection>
+        <collection property="billList" ofType="com.example.dish.entity.Bill">
+            <id property="id" column="bid"/>
+            <result property="customerId" column="customerId"/>
+            <result property="userId" column="userId"/>
+            <result property="genTime" column="genTime"/>
+            <result property="status" column="status"/>
+        </collection>
     </resultMap>
 
     <sql id="keys">
@@ -80,30 +87,40 @@
         categories.sort,
         dish_flavor.id did,
         dish_flavor.name dname,
-        dish_flavor.value
+        dish_flavor.value,
+        bills.id bid,
+        bills.userId,
+        bills.customerId,
+        bills.genTime,
+        bills.status
     </sql>
     <sql id="joins">
         left join categories on dishes.categoryId = categories.id
         left join dish_flavor on dishes.id = dish_flavor.dishId
+        left join bills_dishes on dishes.id = bills_dishes.dishId
+        left join bills on bills_dishes.billId = bills.id
     </sql>
     <select id="listDishes" parameterType="Map" resultMap="dishResultMap">
-        select <include refid="columns"/> from dishes
+        select <include refid="columns"/> from
+        (
+            select * from dishes
+            <where>
+                <if test="dishName!=null and dishName!=''">
+                    dishes.dishName like concat('%',#{dishName},'%')
+                </if>
+                <if test="categoryId!=null and categoryId!=''">
+                    and dishes.categoryId = #{categoryId}
+                </if>
+                <if test="status!=null and status!=''">
+                    and dishes.status = #{status}
+                </if>
+            </where>
+            <if test="current!=null and pageSize!= null">
+                order by dishes.id offset #{current} rows fetch next #{pageSize} rows only
+            </if>
+        )
+        dishes
         <include refid="joins"/>
-        <where>
-            <if test="dishName!=null and dishName!=''">
-                dishes.dishName like concat('%',#{dishName},'%')
-            </if>
-            <if test="categoryId!=null and categoryId!=''">
-                and dishes.categoryId = #{categoryId}
-            </if>
-            <if test="status!=null and status!=''">
-                and dishes.status = #{status}
-            </if>
-        </where>
-        order by dishes.id
-        <if test="current!=null and pageSize!= null">
-            offset #{current} rows fetch next #{pageSize} rows only
-        </if>
     </select>
 
     <select id="count" parameterType="Map" resultType="int">

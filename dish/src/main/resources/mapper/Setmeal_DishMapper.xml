@@ -67,4 +67,15 @@
     <delete id="delete" parameterType="java.lang.Long">
         delete from setmeal_dish where id = #{id}
     </delete>
+
+    <delete id="deleteByQuery" parameterType="Map">
+        <if test="setmealId!=null or dishId!=null or id!=null">
+            delete from setmeal_dish
+            <where>
+                <if test="setmealId!=null">setmealId = #{setmealId}</if>
+                <if test="dishId!=null">and dishId = #{dishId}</if>
+                <if test="id!=null">and id = #{id}</if>
+            </where>
+        </if>
+    </delete>
 </mapper>

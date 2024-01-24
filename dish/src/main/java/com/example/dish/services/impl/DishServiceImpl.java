@@ -44,15 +44,7 @@ public class DishServiceImpl implements DishService {
 
     @Override
     public List<Dish> getAllDishes(Query query){
-        return dishMapper.listDishes(query).stream().peek(dish->{
-            Query query1 = new Query();
-            query1.put("dishId",dish.getId());
-            dish.setBillNum(billDishMapper.count(query1));
-            double score = dishCommentMapper.getAllDishComments().stream()
-                    .filter(dishComment -> Objects.equals(dishComment.getDishId(),dish.getId()))
-                    .mapToInt(DishComment::getRate).summaryStatistics().getAverage();
-            dish.setAverageScore(String.format("%.2f",score));
-        }).toList();
+        return dishMapper.listDishes(query);
     }
 
     @Override
@@ -94,7 +86,7 @@ public class DishServiceImpl implements DishService {
     public BillDetailDTO getDetailsByBillId(Long billId) {
         List<Bill_Dish> bill_dishes = billDishMapper.getDishesByBillId(billId);
         List<DishDetailDTO> dishDetails = bill_dishes.stream().map(bill_dish -> {
-            Dish dish = this.getDishById(bill_dish.getDishId());
+            Dish dish = dishMapper.getDishById(bill_dish.getDishId());
             return DishDetailDTO.builder().dishId(dish.getId())
                     .dishName(dish.getDishName())
                     .category(Optional.ofNullable(categoryMapper.getCategoryById(dish.getCategoryId()))

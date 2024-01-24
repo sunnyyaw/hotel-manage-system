@@ -16,4 +16,5 @@ public interface Setmeal_DishMapper {
     int add(Setmeal_Dish setmeal_dish);
     int update(Setmeal_Dish setmeal_dish);
     int delete(Long id);
+    int deleteByQuery(Query query);
 }

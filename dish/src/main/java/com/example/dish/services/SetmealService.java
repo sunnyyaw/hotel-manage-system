@@ -11,5 +11,6 @@ public interface SetmealService {
     int count(Query query);
     void add(Setmeal setmeal) throws Exception;
     void update(Setmeal setmeal) throws Exception;
+    void updateBatch(List<Setmeal> setmealList)throws Exception;
     void delete(Long id)throws Exception;
 }

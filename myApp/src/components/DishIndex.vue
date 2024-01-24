@@ -18,8 +18,7 @@ export default {
   methods: {
     listByCategory (index) {
       this.$refs.dishesArea.cid = index
-      this.$refs.dishesArea.currentPage = 1
-      this.$refs.dishesArea.loadDishes()
+      this.$refs.dishesArea.handleSelect()
     }
   }
 }

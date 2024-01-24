@@ -34,7 +34,8 @@ export default {
         })
     },
     handleSelect (index) {
-      this.$emit('indexSelect', index)
+      let category = this.navList.filter(item => item.id === index)[0]
+      this.$emit('indexSelect', index, category)
     },
     editCategory (item) {
       this.$refs.edit.dialogFormVisible = true
