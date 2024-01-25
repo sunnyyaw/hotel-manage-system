@@ -60,7 +60,7 @@ public class DishServiceImpl implements DishService {
         double score = dishCommentMapper.getAllDishComments().stream()
                 .filter(dishComment -> Objects.equals(dishComment.getDishId(),dish.getId()))
                 .mapToInt(DishComment::getRate).summaryStatistics().getAverage();
-        dish.setAverageScore(String.format("%.2f",score));
+        dish.setAverageScore(score);
         return dish;
     }
 

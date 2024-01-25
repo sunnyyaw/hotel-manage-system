@@ -16,8 +16,8 @@ export default {
   name: 'DishIndex',
   components: {SideMenu, Dishes},
   methods: {
-    listByCategory (index) {
-      this.$refs.dishesArea.cid = index
+    listByCategory (index, category) {
+      this.$refs.dishesArea.category = category
       this.$refs.dishesArea.handleSelect()
     }
   }

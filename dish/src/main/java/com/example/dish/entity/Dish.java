@@ -19,5 +19,5 @@ public class Dish{
     private List<DishFlavor> dishFlavorList;
     private List<Bill> billList;
     private Category category;
-    private String averageScore;
+    private Double averageScore;
 }

@@ -30,7 +30,7 @@
         label="数量">
     <template slot-scope="scope">
       <el-input-number class="elInputNumber" v-model="scope.row.num"
-      controls-position="right" :min="0" :max="999" @change="value => handleValueChange(value,scope.row.id,scope.row.dishName)"></el-input-number>
+      controls-position="right" :min="0" :max="999" @change="value => handleValueChange(value,scope.row.id,scope.row)"></el-input-number>
     </template>
     </el-table-column>
     <el-table-column
@@ -125,12 +125,13 @@ export default {
       this.currentPage = 1
       this.loadDishes()
     },
-    handleValueChange (value, dishId, dishName) {
+    handleValueChange (value, dishId, dish) {
       let index = this.setmealDishList.findIndex(setmealDish =>
         setmealDish.dishId === dishId)
       if (index === -1) {
         this.setmealDishList.push({dishId: dishId,
-          dishName: dishName,
+          dishName: dish.dishName,
+          unitPrice: dish.unitPrice,
           num: value})
       } else if (value === 0) {
         this.setmealDishList.splice(index, 1)

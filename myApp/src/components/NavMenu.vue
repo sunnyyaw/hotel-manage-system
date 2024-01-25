@@ -1,5 +1,5 @@
 <template>
-  <el-menu :default-active="this.$route.path"
+  <el-menu :default-active="defaultActive"
   class="el-menu-demo"
   router mode="horizontal">
   <el-menu-item v-for="(item,i) in navList" :key="i" :index="item.name">{{ item.navItem }}</el-menu-item>
@@ -21,6 +21,24 @@ export default {
         {name: '/bill', navItem: '账单管理'},
         {name: '/user', navItem: '个人中心'}
       ]
+    }
+  },
+  computed: {
+    defaultActive () {
+      switch (this.$route.path) {
+        case '/userInfo':
+          return '/user'
+        case '/userBill':
+          return '/user'
+        case '/users':
+          return '/user'
+        case '/role':
+          return '/user'
+        case '/permission':
+          return '/user'
+        default:
+          return this.$route.path
+      }
     }
   },
   methods: {

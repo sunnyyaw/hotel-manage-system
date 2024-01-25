@@ -17,6 +17,7 @@
         <collection property="dishList" ofType="com.example.dish.entity.Dish">
             <id property="id" column="did"/>
             <result property="dishName" column="dishName"/>
+            <result property="unitPrice" column="unitPrice"/>
         </collection>
         <collection property="setmeal_dishList" ofType="com.example.dish.entity.Setmeal_Dish">
             <id property="id" column="sid"/>
@@ -87,6 +88,7 @@
         categories.name cname,
         dishes.id did,
         dishes.dishName,
+        dishes.unitPrice,
         setmeal_dish.id sid,
         setmeal_dish.dishId,
         setmeal_dish.num
@@ -103,7 +105,10 @@
             select * from setmeal
             <where>
                 <if test="name!=null and name!=''">
-                    name = #{name}
+                    name like concat('%',#{name},'%')
+                </if>
+                <if test="categoryId!=null and categoryId!=''">
+                    and categoryId = #{categoryId}
                 </if>
             </where>
             <if test="current!=null and pageSize!=null">
@@ -119,6 +124,9 @@
         <where>
             <if test="name!=null and name!=''">
                 name = #{name}
+            </if>
+            <if test="categoryId!=null and categoryId!=''">
+                and categoryId = #{categoryId}
             </if>
         </where>
     </select>

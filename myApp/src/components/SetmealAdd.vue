@@ -15,13 +15,18 @@
       </el-form-item>
       <el-form-item label="菜品" :label-width="labelWidth">
         <template slot-scope="scope">
-          <div v-for="(item,index) in setmealDishList"
-            :key="index">
-            <span>{{ item.dishName }}</span>
-            <span>{{ item.num }}</span>
-          </div>
+          <el-table
+          row-key="id"
+          :data="setmealDishList">
+            <el-table-column label="菜品名" prop="dishName"></el-table-column>
+            <el-table-column label="数量" prop="num"></el-table-column>
+            <el-table-column label="价格" prop="unitPrice"></el-table-column>
+          </el-table>
           <el-button @click="handleAddDish" type="primary">添加菜品</el-button>
         </template>
+      </el-form-item>
+      <el-form-item label="总价格" :label-width="labelWidth">
+        <span>{{sumPrice}}元</span>
       </el-form-item>
       <el-form-item label="描述" :label-width="labelWidth">
         <el-input v-model="form.description" type="textarea" autocomplete="off"></el-input>
@@ -56,6 +61,15 @@ export default {
       labelWidth: '120px'
     }
   },
+  computed: {
+    sumPrice () {
+      let sum = 0
+      this.setmealDishList.forEach(setmealDish => {
+        sum += setmealDish.num * setmealDish.unitPrice
+      })
+      return sum
+    }
+  },
   created () {
     this.init()
   },
@@ -78,6 +92,7 @@ export default {
               return {
                 dishId: dish.id,
                 dishName: dish.dishName,
+                unitPrice: dish.unitPrice,
                 num: this.form.setmeal_dishList.find(setmealDish =>
                   setmealDish.dishId === dish.id).num
               }

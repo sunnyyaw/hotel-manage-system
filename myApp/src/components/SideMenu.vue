@@ -4,7 +4,7 @@
         default-active=""
         @select="handleSelect"
         active-text-color="red">
-    <el-menu-item v-for="item in navList" :key="item.id" :index="item.id">
+    <el-menu-item v-for="(item,index) in navList" :key="index" :index="item.id">
       <i class="el-icon-menu"></i>
       {{ item.name }}
     </el-menu-item>
@@ -16,7 +16,8 @@ export default {
   data () {
     return {
       navList: [
-        {id: '', name: '全部'}
+        {id: '', name: '所有菜品', type: 3},
+        {id: '-1', name: '所有套餐', type: 4}
       ]
     }
   },
@@ -25,7 +26,10 @@ export default {
   },
   methods: {
     loadCategories () {
-      this.navList = [{id: '', name: '全部'}]
+      this.navList = [
+        {id: '', name: '所有菜品', type: 3},
+        {id: '-1', name: '所有套餐', type: 4}
+      ]
       this.$axios.get('/categories')
         .then(resp => {
           if (resp && resp.status === 200) {
@@ -34,7 +38,7 @@ export default {
         })
     },
     handleSelect (index) {
-      let category = this.navList.filter(item => item.id === index)[0]
+      let category = this.navList.find(item => item.id === index)
       this.$emit('indexSelect', index, category)
     },
     editCategory (item) {

@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <nav-menu></nav-menu>
+    <div id="all">
+        <nav-menu id="navMenu"></nav-menu>
         <router-view/>
     </div>
 </template>
@@ -12,4 +12,10 @@ export default {
 }
 </script>
 <style scoped>
+#id {
+  top: 0
+}
+#navMenu {
+  top: 0
+}
 </style>
