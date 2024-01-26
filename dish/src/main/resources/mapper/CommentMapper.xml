@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.dish.mapper.CommentMapper">
+    <resultMap id="CommentResultMap" type="com.example.dish.entity.Comment">
+        <id property="id" column="id"/>
+        <result property="content" column="content"/>
+    </resultMap>
+    <sql id="keys">
+        <trim suffixOverrides=",">
+            <if test="content!=null">
+                content,
+            </if>
+        </trim>
+    </sql>
+    <sql id="values">
+        <trim suffixOverrides=",">
+            <if test="content!=null">
+                #{content},
+            </if>
+        </trim>
+    </sql>
+    <sql id="columns">
+        comment.id,
+        comment.content
+    </sql>
+    <sql id="joins">
+    </sql>
+
+    <select id="all" parameterType="Map" resultMap="CommentResultMap">
+        select <include refid="columns"/> from
+        (
+            select * from comment
+            <where>
+                <if test="content!=null and content!=''">
+                    content like concat('%',#{content},'%')
+                </if>
+            </where>
+            <if test="current!=null and pageSize!=null">
+                order by comment.id offset #{current} rows fetch next #{pageSize} rows only
+            </if>
+        )
+        comment
+        <include refid="joins"/>
+    </select>
+
+    <select id="count" parameterType="Map" resultType="int">
+        select count(*) from comment
+        <where>
+            <if test="content!=null and content!=''">
+                content = #{content}
+            </if>
+        </where>
+    </select>
+
+    <insert id="add" parameterType="com.example.dish.entity.Comment" useGeneratedKeys="true" keyProperty="id">
+        insert into comment
+        <choose>
+            <when test="
+            content != null">
+                ( <include refid="keys"/>) values (<include refid="values"/>)
+            </when>
+            <otherwise>
+                default values
+            </otherwise>
+        </choose>
+    </insert>
+
+    <update id="update" parameterType="com.example.dish.entity.Comment">
+        <if test="
+            content!=null">
+            update comment
+            <set>
+                <if test="content!=null">content = #{content}</if>
+            </set>
+            where id = #{id}
+        </if>
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from comment where id = #{id}
+    </delete>
+
+    <delete id="deleteByQuery" parameterType="Map">
+        delete from comment
+        <where>
+            <if test="ids!=null">and id in
+                <foreach collection="ids" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+</mapper>

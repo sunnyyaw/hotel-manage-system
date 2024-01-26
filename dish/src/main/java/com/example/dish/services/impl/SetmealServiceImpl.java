@@ -73,6 +73,16 @@ public class SetmealServiceImpl implements SetmealService {
 
     @Override
     @Transactional
+    public void delete(Long id) throws Exception {
+        Query query = new Query();
+        query.put("setmealId",id);
+        setmeal_dishMapper.deleteByQuery(query);
+        if(setmealMapper.delete(id)==0)
+            throw new Exception("找不到套餐");
+    }
+
+    @Override
+    @Transactional
     public void updateBatch(List<Setmeal> setmealList) throws Exception {
         SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH,false);
         SetmealMapper setmealMapper1 = session.getMapper(SetmealMapper.class);
@@ -85,11 +95,15 @@ public class SetmealServiceImpl implements SetmealService {
 
     @Override
     @Transactional
-    public void delete(Long id)throws Exception {
+    public void deleteBatch(List<Long> ids)throws Exception {
+        if(ids.isEmpty())
+            throw new Exception("没有选中要删除的套餐");
         Query query = new Query();
-        query.put("setmealId",id);
+        query.put("setmealIds",ids);
         setmeal_dishMapper.deleteByQuery(query);
-        if(setmealMapper.delete(id)==0)
-            throw new Exception("找不到套餐");
+        Query query1 = new Query();
+        query1.put("ids",ids);
+        if(setmealMapper.deleteByQuery(query1)!= ids.size())
+            throw new Exception("找不到其中部分套餐");
     }
 }

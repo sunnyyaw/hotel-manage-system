@@ -3,7 +3,6 @@ package com.example.dish.controller;
 import com.example.dish.common.PageUtils;
 import com.example.dish.common.Query;
 import com.example.dish.common.Result;
-import com.example.dish.entity.Dish;
 import com.example.dish.entity.Setmeal;
 import com.example.dish.services.SetmealService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +44,11 @@ public class SetmealController {
     @DeleteMapping("/setmeals/{id}")
     public Result<String> delete(@PathVariable Long id) throws Exception {
         setmealService.delete(id);
+        return Result.success("删除成功");
+    }
+    @DeleteMapping("/setmeals")
+    public Result<String> deleteBatch(@RequestParam List<Long> ids) throws Exception {
+        setmealService.deleteBatch(ids);
         return Result.success("删除成功");
     }
 }

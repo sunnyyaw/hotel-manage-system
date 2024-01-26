@@ -1,10 +1,13 @@
 package com.example.dish;
 
 import com.example.dish.common.Query;
+import com.example.dish.entity.Comment;
+import com.example.dish.mapper.CommentMapper;
 import com.example.dish.mapper.DishMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,8 +38,6 @@ public class DishApplicationTest {
 	private HttpSession session;
 	@Autowired
 	private MockMvc mockMvc;
-	@Autowired
-	private DishMapper dishMapper;
 
 	@Test
 	public void contextLoads() throws SQLException {
@@ -91,13 +92,6 @@ public class DishApplicationTest {
 						.session((MockHttpSession) session))
 				.andExpect(MockMvcResultMatchers.status().isOk());
 		System.out.println(result.getResponse().getContentAsString());
-	}
-	@Test
-	public void getFileString(){
-		String originalName = "abc.jpeg";
-		String suffix = originalName.substring(originalName.lastIndexOf("."));
-		String fileName = UUID.randomUUID().toString().replace("-","") + suffix;
-		assert ".jpeg".equals(suffix);
 	}
 	@Test
 	public void listBills() throws Exception {

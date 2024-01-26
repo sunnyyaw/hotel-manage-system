@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row>
-      <el-col :span=12>
+      <el-col :span=16>
         <el-input
         placeholder="输入套餐名搜索"
         v-model="input"
@@ -10,13 +10,10 @@
         <i slot="prefix" class="el-input__icon el-icon-search"></i>
         </el-input>
       </el-col>
-      <el-col :span=4>
-        <el-button @click="batchUpdate(1)" type="primary">批量启售</el-button>
-      </el-col>
-      <el-col :span=4>
-        <el-button @click="batchUpdate(0)" type="primary">批量停售</el-button>
-      </el-col>
-      <el-col :span=4>
+      <el-col :span=8>
+        <el-button @click="batchDelete" type="text">批量删除</el-button>
+        <el-button @click="batchUpdate(1)" type="text">批量启售</el-button>
+        <el-button @click="batchUpdate(0)" type="text">批量停售</el-button>
         <router-link to="/setmeals/add">
           <el-button type="primary">添加套餐</el-button>
         </router-link>
@@ -193,6 +190,30 @@ export default{
         }
       })
       this.$axios.put('/setmealsBatch', dishList).then(resp => {
+        if (resp && resp.data.code === 200) {
+          this.$message({
+            type: 'success',
+            message: resp.data.message
+          })
+          this.load()
+        } else {
+          this.$message({
+            type: 'warning',
+            message: resp.data.message
+          })
+        }
+      }).catch(error => {
+        this.$message({
+          type: 'error',
+          message: `系统接口${error.response.status}异常`
+        })
+      })
+    },
+    batchDelete () {
+      let selection = this.$refs.multipleTable.selection
+      let ids = selection.map(setmeal => setmeal.id)
+      console.log(ids)
+      this.$axios.delete(`/setmeals?ids=${ids}`).then(resp => {
         if (resp && resp.data.code === 200) {
           this.$message({
             type: 'success',
